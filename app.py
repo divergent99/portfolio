@@ -161,7 +161,7 @@ SKILL_CATS = [
             ("Gemini Live", "fa-microphone"),
             ("Groq", "fa-bolt"),
             ("HuggingFace", "fa-face-smile"),
-            ("OpenAI Whisper", "fa-waveform-lines"),
+            ("OpenAI Whisper", "fa-wave-square"),
         ],
     },
     {
