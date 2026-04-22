@@ -116,28 +116,29 @@ PROJECTS = [
         "accent": "#3b82f6",
     },
     {
-        "name": "Agents Assemble",
-        "hackathon": "Devpost Healthcare AI — $25K Prize",
-        "status": "In Progress",
-        "status_color": "#ec4899",
-        "tagline": "Uninsured patient navigator using MCP + HL7 FHIR",
-        "description": (
-            "Healthcare AI platform reading HL7 FHIR patient profiles via MCP to guide "
-            "uninsured patients through care options, costs, and coverage eligibility. "
-            "Built on A2A protocol for multi-agent coordination across care services."
-        ),
-        "highlights": [
-            "MCP server reading HL7 FHIR patient profiles",
-            "A2A protocol for multi-agent care navigation",
-            "$25K prize pool — active submission",
-            "Covers care options, costs, and coverage eligibility",
-        ],
-        "stack": ["MCP", "A2A Protocol", "HL7 FHIR", "LangGraph", "FastAPI", "Dash"],
-        "github": "https://github.com/divergent99",
-        "live": None,
-        "icon": "fa-hospital-user",
-        "accent": "#ec4899",
-    },
+    "name": "QuantPulse",
+    "hackathon": "AlgoFest Hackathon 2026",
+    "status": "Deployed",
+    "status_color": "#00ffa3",
+    "tagline": "Algorithmic portfolio risk intelligence with terminal aesthetic",
+    "description": (
+        "Single-day build of a quantitative portfolio risk platform. Combines a "
+        "from-scratch risk engine (VaR, Sharpe, Sortino, Beta, CVaR, Max Drawdown) "
+        "with a LangGraph agent for natural-language risk queries and live market "
+        "news via Tavily — all wrapped in a Bloomberg-style terminal UI."
+    ),
+    "highlights": [
+        "Full quant engine: VaR, CVaR, Sharpe, Sortino, Beta, Max Drawdown",
+        "LangGraph agent orchestrating metrics + Tavily news retrieval",
+        "9-chart Plotly Dash dashboard with hacker/terminal aesthetic",
+        "Shipped end-to-end in a single hackathon day",
+    ],
+    "stack": ["LangGraph", "Amazon Nova Lite", "Tavily", "Alpha Vantage", "Plotly Dash", "Railway"],
+    "github": "https://github.com/divergent99/quantpulse",
+    "live": None,
+    "icon": "fa-chart-line",
+    "accent": "#ec4899",
+},
 ]
 
 SKILL_CATS = [
