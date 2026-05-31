@@ -83,24 +83,42 @@
 /* ── Scroll reveal ────────────────────────────────────────────── */
 (function initReveal() {
   const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);   // reveal once, then stop watching
+      }
+    });
   }, { threshold: .12 });
-  const revealAll = () => {
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-  };
-  // Run immediately and re-check after Dash re-renders
-  revealAll();
-  setTimeout(revealAll, 500);
-  setTimeout(revealAll, 1500);
-})();
 
-/* ── Scan-line brightness pulse on card hover ─────────────────── */
-document.addEventListener('mousemove', e => {
-  document.querySelectorAll('.project-card').forEach(card => {
-    const rect = card.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width)  * 100;
-    const y = ((e.clientY - rect.top)  / rect.height) * 100;
-    card.style.setProperty('--mx', x + '%');
-    card.style.setProperty('--my', y + '%');
-  });
-});
+  const revealAll = () => {
+    document.querySelectorAll('.reveal:not(.visible)').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      // already in (or above) the viewport → reveal immediately
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        el.classList.add('visible');
+      } else {
+        observer.observe(el);
+      }
+    });
+  };
+
+  // Keep retrying until Dash has actually rendered the .reveal nodes
+  function boot(attempts = 0) {
+    const found = document.querySelectorAll('.reveal').length;
+    if (found > 0) {
+      revealAll();
+      // re-scan a couple times in case sections mount slightly later
+      setTimeout(revealAll, 400);
+      setTimeout(revealAll, 1200);
+    } else if (attempts < 60) {       // retry up to ~6s
+      setTimeout(() => boot(attempts + 1), 100);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => boot());
+  } else {
+    boot();
+  }
+})();
