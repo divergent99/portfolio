@@ -8,10 +8,10 @@ app = dash.Dash(
         "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700;800&display=swap",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css",
     ],
-    title="Abhineet Sharma | AI Engineer",
+    title="Abhineet Sharma | Data Scientist & AI Engineer",
     meta_tags=[
         {"name": "viewport", "content": "width=device-width, initial-scale=1"},
-        {"name": "description", "content": "AI Engineer specializing in GenAI, LangGraph, RAG pipelines, and multi-agent systems."},
+        {"name": "description", "content": "Data Scientist and AI Engineer specializing in GenAI, LangGraph, RAG pipelines, and multi-agent systems."},
     ],
     suppress_callback_exceptions=True,
 )
@@ -135,11 +135,96 @@ PROJECTS = [
     ],
     "stack": ["LangGraph", "Amazon Nova Lite", "Tavily", "Alpha Vantage", "Plotly Dash", "Railway"],
     "github": "https://github.com/divergent99/quantpulse",
-    "live": None,
+    "live": "https://web-production-12187.up.railway.app/",
     "icon": "fa-chart-line",
     "accent": "#ec4899",
 },
 ]
+
+# Deployed projects from the latest public GitHub portfolio refresh.
+# The original showcase cards above are intentionally retained.
+PROJECTS.extend([
+    {
+        "name": "ZeroDay", "hackathon": "Cyber Incident Simulation", "status": "Deployed", "status_color": "#00ffa3",
+        "tagline": "Cinematic cyber incident command simulator",
+        "description": "Triage global infrastructure threats, deploy specialist teams, investigate live intelligence, and make time-critical decisions with branching consequences.",
+        "highlights": ["Branching incident scenarios", "Specialist team deployment", "AI-powered live intelligence", "Responsive command-center interface"],
+        "stack": ["React", "FastAPI", "AI Agents", "JavaScript"], "github": "https://github.com/divergent99/ZeroDay",
+        "live": "https://zero-day-blue.vercel.app/", "icon": "fa-shield-halved", "accent": "#ef4444",
+    },
+    {
+        "name": "Enough", "hackathon": "OpenAI Realtime Experience", "status": "Deployed", "status_color": "#00ffa3",
+        "tagline": "A private AI companion for overwhelming days",
+        "description": "A privacy-conscious conversational companion designed for moments of grief, panic, and emotional overload, with a calm real-time voice experience.",
+        "highlights": ["Realtime voice interaction", "Privacy-conscious experience", "Supportive conversational design", "Low-friction crisis interface"],
+        "stack": ["GPT-5.6", "OpenAI Realtime API", "Python", "Railway"], "github": "https://github.com/divergent99/Enough",
+        "live": "https://web-production-bc492.up.railway.app/", "icon": "fa-heart", "accent": "#f472b6",
+    },
+    {
+        "name": "PitWall AI", "hackathon": "AI Race Strategy Lab", "status": "Deployed", "status_color": "#00ffa3",
+        "tagline": "Explainable Formula 1 race strategy intelligence",
+        "description": "Simulates race scenarios, models uncertainty and rival reactions, and uses AI to explain every strategic call like a virtual pit wall.",
+        "highlights": ["Race scenario simulation", "Rival reaction modelling", "Uncertainty-aware strategy", "Explainable strategic calls"],
+        "stack": ["GPT-5.6", "React", "JavaScript", "Railway"], "github": "https://github.com/divergent99/Pitwall.AI",
+        "live": "https://web-production-4f803.up.railway.app/", "icon": "fa-flag-checkered", "accent": "#ef4444",
+    },
+    {
+        "name": "Trade Impact Agent", "hackathon": "Live Agentic Sports Analytics", "status": "Deployed", "status_color": "#00ffa3",
+        "tagline": "Real-time agentic NBA trade analysis",
+        "description": "A LangGraph agent pulls current rosters, stats, injuries, and news to evaluate and grade NBA trades with evidence-backed analysis.",
+        "highlights": ["Live roster and stats retrieval", "Injury and news context", "Evidence-backed trade grades", "Agentic analysis workflow"],
+        "stack": ["LangGraph", "Claude", "React", "JavaScript"], "github": "https://github.com/divergent99/trade-impact-agent",
+        "live": "https://trade-impact-agent.vercel.app/", "icon": "fa-basketball", "accent": "#f97316",
+    },
+    {
+        "name": "CareerTrack", "hackathon": "Agentic Memory System", "status": "Deployed", "status_color": "#00ffa3",
+        "tagline": "A persistent AI memory for your job search",
+        "description": "Ingests Gmail and remembers applications, interviews, and rejections, turning a fragmented job hunt into a searchable, context-aware workflow.",
+        "highlights": ["Gmail application ingestion", "Persistent job-search memory", "Vector-based semantic retrieval", "Interview and status tracking"],
+        "stack": ["CockroachDB", "Vector Search", "MCP", "AWS Bedrock", "React"], "github": "https://github.com/divergent99/CareerTrack",
+        "live": "https://career-track-chi.vercel.app/", "icon": "fa-route", "accent": "#3b82f6",
+    },
+    {
+        "name": "CoreMap", "hackathon": "Personalized GenAI Learning", "status": "Deployed", "status_color": "#00ffa3",
+        "tagline": "Signal-first roadmap for learning GenAI",
+        "description": "Builds personalized learning roadmaps, filters live AI news by signal versus hype, and provides an interactive architecture simulator.",
+        "highlights": ["Personalized learning roadmap", "Signal-vs-hype news filtering", "Interactive architecture graphs", "Live AI news retrieval"],
+        "stack": ["Next.js", "TypeScript", "Claude Sonnet", "Tavily", "DynamoDB"], "github": "https://github.com/divergent99/coremap",
+        "live": "https://coremap.vercel.app/", "icon": "fa-map", "accent": "#8b5cf6",
+    },
+    {
+        "name": "Blast Radius Dashboard", "hackathon": "GitLab Developer Tooling", "status": "Deployed", "status_color": "#00ffa3",
+        "tagline": "Visualize merge-request risk before it ships",
+        "description": "Maps GitLab merge-request impact through a dependency graph, identifies files at risk, and adds AI-powered codebase exploration.",
+        "highlights": ["Merge-request impact analysis", "Interactive dependency graph", "At-risk file identification", "AI codebase chat"],
+        "stack": ["React", "Vite", "GitLab Orbit", "Claude", "FastAPI"], "github": "https://github.com/divergent99/blast-radius-dashboard",
+        "live": "https://blast-radius-dashboard.vercel.app/", "icon": "fa-circle-nodes", "accent": "#f59e0b",
+    },
+    {
+        "name": "Roast My Portfolio", "hackathon": "AI Investment Experience", "status": "Deployed", "status_color": "#00ffa3",
+        "tagline": "Brutally honest AI feedback on your holdings",
+        "description": "Upload a portfolio screenshot and receive direct, entertaining analysis that turns a dense set of holdings into clear feedback.",
+        "highlights": ["Screenshot-based portfolio input", "AI-generated investment critique", "Fast visual workflow", "Shareable results experience"],
+        "stack": ["React", "JavaScript", "Vision AI", "Vercel"], "github": "https://github.com/divergent99/roast-my-portfolio",
+        "live": "https://roast-my-portfolio-two.vercel.app/", "icon": "fa-fire-flame-curved", "accent": "#ec4899",
+    },
+    {
+        "name": "Kalam", "hackathon": "Applied GenAI Project", "status": "Deployed", "status_color": "#00ffa3",
+        "tagline": "AI-powered preparation companion for IAS aspirants",
+        "description": "A focused learning and preparation platform built to help IAS aspirants navigate their civil-services journey with an AI-powered experience.",
+        "highlights": ["Designed for IAS aspirants", "AI-assisted preparation", "Focused learning experience", "Production Railway deployment"],
+        "stack": ["Python", "AI", "Railway"], "github": "https://github.com/divergent99/Kalam",
+        "live": "https://kalam-prod-test.up.railway.app/", "icon": "fa-pen-fancy", "accent": "#14b8a6",
+    },
+    {
+        "name": "GenAI Guide", "hackathon": "GenAI Learning Resource", "status": "Deployed", "status_color": "#00ffa3",
+        "tagline": "A practical field guide to generative AI",
+        "description": "An accessible, web-based guide that organizes core generative-AI concepts into a practical learning experience.",
+        "highlights": ["Structured GenAI learning path", "Web-first reference experience", "Practical concept breakdowns", "Production Railway deployment"],
+        "stack": ["HTML", "CSS", "JavaScript", "Railway"], "github": "https://github.com/divergent99/GenAI-Guide",
+        "live": "https://genai-guide-production.up.railway.app/", "icon": "fa-book-open", "accent": "#06b6d4",
+    },
+])
 
 SKILL_CATS = [
     {
@@ -211,12 +296,23 @@ SKILL_CATS = [
 
 EXPERIENCE = [
     {
+        "role": "Data Scientist",
+        "company": "GEDU Services",
+        "company_url": "https://geduservices.com/",
+        "dates": "Jul 2026 — Present",
+        "accent": "#00ffa3",
+        "active": True,
+        "desc": "Working as a Data Scientist at GEDU Services, supporting data-led innovation across a global education services organization.",
+        "bullets": [],
+        "tech": ["Data Science", "Machine Learning", "Generative AI", "Python"],
+    },
+    {
         "role": "Associate (AI Engineer)",
         "company": "Alvarez & Marsal",
         "company_url": "https://www.alvarezandmarsal.com",
-        "dates": "Jan 2025 — Present",
+        "dates": "Jan 2025 — May 2026",
         "accent": "#6366f1",
-        "active": True,
+        "active": False,
         "desc": "Building production GenAI systems for the GCC Gen Platform initiative, supporting CDD and PE deal teams with LLM-driven automation, conversational agents, and document intelligence pipelines.",
         "bullets": [
             "Engineered OCR + ASR ingestion with LLM-based extraction (Whisper, pytesseract), increasing data capture accuracy by 35%",
@@ -402,7 +498,7 @@ app.layout = html.Div([
                     "Available for freelance & consulting",
                 ], className="status-pill reveal"),
 
-                html.Div("// AI Engineer", className="hero-eyebrow reveal reveal-delay-1"),
+                html.Div("// Data Scientist & AI Engineer", className="hero-eyebrow reveal reveal-delay-1"),
 
                 html.H1([
                     html.Span("Abhineet "),
@@ -435,11 +531,11 @@ app.layout = html.Div([
 
                 html.Div([
                     html.Div([
-                        html.Div("5+", className="stat-num", style={"color": "#6366f1"}),
+                        html.Div("10+", className="stat-num", style={"color": "#6366f1"}),
                         html.Div("Hackathons", className="stat-label"),
                     ]),
                     html.Div([
-                        html.Div("3+", className="stat-num", style={"color": "#00ffa3"}),
+                        html.Div("3.5+", className="stat-num", style={"color": "#00ffa3"}),
                         html.Div("Years Experience", className="stat-label"),
                     ]),
                     html.Div([
@@ -459,8 +555,8 @@ app.layout = html.Div([
         html.Section([
             html.Div([
                 html.Div("02. WORK", className="section-label"),
-                html.H2("Hackathon Projects", className="section-title"),
-                html.P("Production-grade AI systems built under fire — real deadlines, real deployment.", className="section-sub"),
+                html.H2("Selected AI Projects", className="section-title"),
+                html.P("Deployed products and hackathon systems — built under real deadlines and shipped to production.", className="section-sub"),
                 html.Div(className="title-line"),
                 html.Div(
                     [project_card(p, i) for i, p in enumerate(PROJECTS)],
