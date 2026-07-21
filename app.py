@@ -145,6 +145,15 @@ PROJECTS = [
 # The original showcase cards above are intentionally retained.
 PROJECTS.extend([
     {
+        "name": "Change Impact Lab", "hackathon": "Jira Change Intelligence", "status": "Deployed", "status_color": "#00ffa3",
+        "tagline": "Know what a Jira change could break before the sprint does",
+        "description": "A read-only change-intelligence workspace that traverses direct and downstream Jira relationships, exposes the evidence behind every connection, and answers grounded questions about the visible work.",
+        "highlights": ["Deterministic blast-radius traversal", "Evidence-backed relationship graph", "Adjustable one-to-three-hop analysis", "Grounded chat with Jira citations"],
+        "stack": ["Next.js 16", "React 19", "Jira Cloud API", "OpenAI Responses API", "TypeScript"],
+        "github": "https://github.com/divergent99/ImpactLab",
+        "live": "https://impactlab-production.up.railway.app/", "icon": "fa-arrows-to-circle", "accent": "#22d3ee",
+    },
+    {
         "name": "ZeroDay", "hackathon": "Cyber Incident Simulation", "status": "Deployed", "status_color": "#00ffa3",
         "tagline": "Cinematic cyber incident command simulator",
         "description": "Triage global infrastructure threats, deploy specialist teams, investigate live intelligence, and make time-critical decisions with branching consequences.",
