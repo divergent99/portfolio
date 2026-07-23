@@ -245,6 +245,8 @@ SKILL_CATS = [
             ("LlamaIndex", "fa-layer-group"),
             ("CrewAI", "fa-users-gear"),
             ("MCP / A2A", "fa-plug"),
+            ("Codex", "fa-terminal"),
+            ("Claude Code", "fa-terminal"),
         ],
     },
     {
@@ -257,6 +259,7 @@ SKILL_CATS = [
             ("Groq", "fa-bolt"),
             ("HuggingFace", "fa-face-smile"),
             ("OpenAI Whisper", "fa-wave-square"),
+            ("Ollama", "fa-server"),
         ],
     },
     {
@@ -299,6 +302,10 @@ SKILL_CATS = [
             ("Streamlit", "fa-display"),
             ("Gradio", "fa-sliders"),
             ("React", "fa-react"),
+            ("Next.js", "fa-n"),
+            ("Vite", "fa-bolt"),
+            ("Tailwind CSS", "fa-wind"),
+            ("Three.js", "fa-cube"),
         ],
     },
 ]
