@@ -319,8 +319,14 @@ EXPERIENCE = [
         "accent": "#00ffa3",
         "active": True,
         "desc": "Working as a Data Scientist at GEDU Services, supporting data-led innovation across a global education services organization.",
-        "bullets": [],
-        "tech": ["Data Science", "Machine Learning", "Generative AI", "Python"],
+        "bullets": [
+            "Built a production agentic RAG chatbot for Global Banking School using LangGraph, FastAPI, and ChromaDB, indexing 453+ pages with citation-first, self-checking responses streamed via SSE",
+            "Engineered a review-intelligence pipeline scraping 8+ platforms across 12 GEDU portfolio schools, combining VADER and Claude Haiku sentiment scoring with a React/D3-force dashboard for leadership visibility",
+            "Prototyped a Microsoft Teams agent routing natural-language queries to Jira's REST API via LangGraph, reducing manual sprint-status lookups for the team",
+            "Authored and shipped an AES-256-GCM encrypted executive briefing deck for GEDU Services leadership, mapping GenAI coverage gaps and competitor positioning across service lines",
+            "Proposed an outbound-calling automation strategy (CALL-E) for admissions follow-up, evaluating carrier infrastructure options for the Indian market",
+        ],
+        "tech": ["Data Science", "Machine Learning", "Generative AI", "Python","LangGraph", "LangChain"],
     },
     {
         "role": "Associate (AI Engineer)",
@@ -329,7 +335,7 @@ EXPERIENCE = [
         "dates": "Jan 2025 — May 2026",
         "accent": "#6366f1",
         "active": False,
-        "desc": "Building production GenAI systems for the GCC Gen Platform initiative, supporting CDD and PE deal teams with LLM-driven automation, conversational agents, and document intelligence pipelines.",
+        "desc": "Built production GenAI systems for the GCC Gen Platform initiative, supporting CDD and PE deal teams with LLM-driven automation, conversational agents, and document intelligence pipelines.",
         "bullets": [
             "Engineered OCR + ASR ingestion with LLM-based extraction (Whisper, pytesseract), increasing data capture accuracy by 35%",
             "Operationalized conversational agents with LangGraph for real-time metric retrieval, enabling 20+ executive briefings per quarter",
