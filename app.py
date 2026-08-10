@@ -350,7 +350,7 @@ EXPERIENCE = [
         "company": "Newgen Software",
         "company_url": "https://www.newgensoft.com",
         "dates": "Oct 2022 — Dec 2024",
-        "accent": "#10b981",
+        "accent": "#6366f1",
         "active": False,
         "desc": "Built enterprise GenAI applications, recommendation systems, and classical ML pipelines for e-commerce and BFSI clients. Focused on RAG, multi-agent workflows, and embedding-based systems.",
         "bullets": [
