@@ -32,21 +32,7 @@ app = dash.Dash(
 )
 server = app.server
 
-app.index_string = """<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {%metas%}
-    <title>{%title%}</title>
-    {%favicon%}
-    {%css%}
-  </head>
-  <body>
-    {%app_entry%}
-    <footer>{%config%}{%scripts%}{%renderer%}</footer>
-  </body>
-</html>"""
+# The page is server-rendered to plain HTML (see render_page at the bottom).
 
 # ══════════════════════════════════════════════════════════════════
 # DATA
@@ -151,7 +137,7 @@ PROJECTS = [
         "description": "Analysts speak their questions and get spoken + visual answers back. A real-time WebSocket audio pipeline streams Gemini Live responses straight into the UI. No keyboard required.",
         "highlights": ["Gemini Live API real-time voice", "Bi-directional WebSocket audio", "Voice + visual diligence output"],
         "stack": ["Gemini Live API", "WebSocket", "FastAPI", "Dash", "Google Cloud Run"],
-        "github": "https://github.com/divergent99", "live": None,
+        "github": None, "live": None,
         "icon": "fa-microphone-lines", "tags": "voice finance",
     },
     {
@@ -298,6 +284,36 @@ CODE = [
      "Demos are cheap. FastAPI, Docker, CI/CD and real users are where the craft actually lives."),
 ]
 
+CASES = [
+    {
+        "org": "GEDU Services · Global Banking School", "year": "2026", "status": "In production",
+        "title": "GBS Assistant",
+        "problem": "Students and staff were digging through 450+ pages of site content and PDFs to find course, fee and admissions answers.",
+        "build": "LangGraph pipeline with recursive site crawling, PDF and table extraction, and ChromaDB retrieval on domain-tuned embeddings. Answers are citation-first and self-checked before they stream out over FastAPI SSE.",
+        "metric": "450+", "metric_label": "pages indexed, every answer cited",
+        "flow": ["Crawl", "Extract", "Embed", "Retrieve", "Self-check", "Stream"],
+        "stack": ["LangGraph", "ChromaDB", "FastAPI", "Claude API"],
+    },
+    {
+        "org": "Alvarez & Marsal · PE / M&A advisory", "year": "2025", "status": "Shipped to deal teams",
+        "title": "CDD deck automation",
+        "problem": "Analysts hand-built commercial due diligence decks from data-room documents on every engagement.",
+        "build": "Docling parses the documents, Azure OpenAI extracts the facts, and python-pptx renders a finished deck in the firm's format.",
+        "metric": "60%", "metric_label": "less analyst prep time per engagement",
+        "flow": ["Parse", "Extract facts", "Render deck"],
+        "stack": ["Docling", "Azure OpenAI", "python-pptx", "FastAPI"],
+    },
+    {
+        "org": "Alvarez & Marsal · Portfolio analytics", "year": "2025", "status": "Shipped to deal teams",
+        "title": "RAPID text-to-SQL",
+        "problem": "Deal teams needed portfolio numbers on demand without writing SQL, and the answers had to match the Power BI dashboards exactly.",
+        "build": "LangGraph agent over DuckDB with Azure OpenAI, semantic caching, follow-up question detection and SSE streaming. Calculations are aligned to the existing Power BI / DAX definitions.",
+        "metric": "DAX", "metric_label": "aligned, so the numbers match the dashboards",
+        "flow": ["Question", "Cache check", "SQL", "DuckDB", "Answer"],
+        "stack": ["LangGraph", "DuckDB", "Azure OpenAI", "FastAPI"],
+    },
+]
+
 # ══════════════════════════════════════════════════════════════════
 # COMPONENT BUILDERS
 # ══════════════════════════════════════════════════════════════════
@@ -349,8 +365,10 @@ def section_head(num, kanji, label, title, sub):
 
 def project_card(p, i):
     status_cls = {"Deployed": "live", "Submitted": "sub", "Built": "built"}[p["status"]]
-    links = [html.A([html.I(className="fa-brands fa-github"), " Code"], href=p["github"],
-                    target="_blank", rel="noopener", className="card-link")]
+    links = []
+    if p["github"]:
+        links.append(html.A([html.I(className="fa-brands fa-github"), " Code"], href=p["github"],
+                            target="_blank", rel="noopener", className="card-link"))
     if p["live"]:
         links.append(html.A([html.I(className="fa-solid fa-arrow-up-right-from-square"), " Live"],
                             href=p["live"], target="_blank", rel="noopener", className="card-link primary"))
@@ -374,6 +392,31 @@ def project_card(p, i):
     ], className="project-card reveal", **{
         "data-tags": p["tags"], "data-live": "1" if p["live"] else "0", "data-index": str(i),
     })
+
+
+def case_card(c, i):
+    flow = []
+    for j, step in enumerate(c["flow"]):
+        if j:
+            flow.append(html.I(className="fa-solid fa-arrow-right-long flow-arrow"))
+        flow.append(html.Span(step, className="flow-step"))
+    return html.Article([
+        html.Div([
+            html.Div([html.Span(f"0{i+1}", className="case-num"), html.Span(c["org"])], className="case-org"),
+            html.H3(c["title"], className="case-title"),
+            html.Div([html.Span(className="dot"), c["status"], html.Span(" · " + c["year"], className="dim")], className="case-status"),
+            html.Div([
+                html.Div([html.Div("Problem", className="case-k"), html.P(c["problem"])], className="case-block"),
+                html.Div([html.Div("Build", className="case-k"), html.P(c["build"])], className="case-block"),
+            ], className="case-body"),
+            html.Div([stack_tag(t) for t in c["stack"]], className="card-stack"),
+        ], className="case-main"),
+        html.Div([
+            html.Div(c["metric"], className="case-metric"),
+            html.Div(c["metric_label"], className="case-metric-label"),
+            html.Div(flow, className="case-flow"),
+        ], className="case-side"),
+    ], className="case-card reveal")
 
 
 def skill_section(cat):
@@ -426,7 +469,7 @@ def contact_link(icon_key, label, sub, href, extra=None):
 # LAYOUT
 # ══════════════════════════════════════════════════════════════════
 
-NAV = [("way", "Way"), ("projects", "Work"), ("skills", "Arsenal"), ("experience", "Path"), ("contact", "Contact")]
+NAV = [("way", "Way"), ("cases", "Cases"), ("projects", "Work"), ("skills", "Arsenal"), ("experience", "Path"), ("contact", "Contact")]
 
 app.layout = html.Div(id="ronin-root", children=[
 
@@ -523,10 +566,19 @@ app.layout = html.Div(id="ronin-root", children=[
         ], className="container"),
     ], id="way", className="section"),
 
+    # ── CASE STUDIES ───────────────────────────────────────────────
+    html.Section([
+        html.Div([
+            section_head("02", "匠", "The Craft", "Production case studies",
+                         "Hackathons are sparring. This is the real fight: systems running for real users and deal teams."),
+            html.Div([case_card(c, i) for i, c in enumerate(CASES)], className="cases"),
+        ], className="container"),
+    ], id="cases", className="section"),
+
     # ── PROJECTS ───────────────────────────────────────────────────
     html.Section([
         html.Div([
-            section_head("02", "作", "The Work", "Selected projects",
+            section_head("03", "作", "The Work", "Selected projects",
                          "Deployed products and hackathon systems, built under real deadlines."),
             html.Div([
                 html.Div([
@@ -549,7 +601,7 @@ app.layout = html.Div(id="ronin-root", children=[
     # ── SKILLS ─────────────────────────────────────────────────────
     html.Section([
         html.Div([
-            section_head("03", "武器", "The Arsenal", "Tech stack",
+            section_head("04", "武器", "The Arsenal", "Tech stack",
                          "From LLM orchestration to production deployment. Hover to light them up."),
             html.Div([skill_section(c) for c in SKILL_CATS], className="skill-categories"),
             html.Div([
@@ -562,7 +614,7 @@ app.layout = html.Div(id="ronin-root", children=[
     # ── EXPERIENCE ─────────────────────────────────────────────────
     html.Section([
         html.Div([
-            section_head("04", "旅", "The Path", "Experience",
+            section_head("05", "旅", "The Path", "Experience",
                          f"{YEARS} years delivering AI in production, from BFSI to PE deal rooms to education."),
             html.Div([timeline_item(e) for e in EXPERIENCE], className="timeline"),
             html.Div([
@@ -575,7 +627,7 @@ app.layout = html.Div(id="ronin-root", children=[
     # ── CONTACT ────────────────────────────────────────────────────
     html.Section([
         html.Div([
-            section_head("05", "灯", "Light the lantern", "Let's build something",
+            section_head("06", "灯", "Light the lantern", "Let's build something",
                          "Open to freelance projects, consulting and collaborations."),
             html.Div([
                 html.Div([
@@ -605,12 +657,145 @@ app.layout = html.Div(id="ronin-root", children=[
             html.Span("Abhineet Sharma © 2026"),
         ], className="foot-left"),
         html.Div([
-            "Forged in ", html.Span("Plotly Dash", className="accent"), " + vanilla JS · ",
+            "Plotly Dash components, server-rendered, + vanilla JS · ",
             html.Kbd("R"), " rain ", html.Kbd("S"), " sound",
         ], className="foot-right"),
     ], className="site-footer"),
 ])
 
 
+# ══════════════════════════════════════════════════════════════════
+# SERVER-SIDE RENDER
+# Dash components are rendered to static HTML once at startup, so crawlers,
+# link previews and slow phones get the full page without the React bundle.
+# ══════════════════════════════════════════════════════════════════
+import hashlib
+import json
+import os
+import re
+from html import escape
+
+from flask import Response, request
+
+VOID = {"img", "source", "br", "hr", "input", "meta", "link"}
+SKIP_PROPS = {"children", "n_clicks", "n_clicks_timestamp", "disable_n_clicks", "loading_state"}
+ATTR = {"className": "class", "srcSet": "srcset", "htmlFor": "for"}
+
+
+def _css_name(k):
+    if k.startswith("--"):
+        return k
+    k = re.sub(r"^Webkit", "-webkit-", k)
+    return re.sub(r"(?<!^)(?<!-)([A-Z])", r"-\1", k).lower()
+
+
+def render(node):
+    if node is None:
+        return ""
+    if isinstance(node, (str, int, float)):
+        return escape(str(node))
+    if isinstance(node, (list, tuple)):
+        return "".join(render(n) for n in node)
+    js = node.to_plotly_json()
+    tag, props = js["type"].lower(), js["props"]
+    attrs = []
+    for k, v in props.items():
+        if k in SKIP_PROPS or v is None:
+            continue
+        if k == "style":
+            v = ";".join(f"{_css_name(sk)}:{sv}" for sk, sv in v.items())
+        attrs.append(f'{ATTR.get(k, k)}="{escape(str(v), quote=True)}"')
+    if tag == "button":
+        attrs.append('type="button"')
+    open_tag = f"<{tag}{' ' if attrs else ''}{' '.join(attrs)}>"
+    return open_tag if tag in VOID else f"{open_tag}{render(props.get('children'))}</{tag}>"
+
+
+ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+
+
+def _v(name):
+    with open(os.path.join(ASSETS, name), "rb") as f:
+        return hashlib.md5(f.read()).hexdigest()[:8]
+
+
+DESCRIPTION = ("Abhineet Sharma, Data Scientist and AI Engineer with 4+ years building GenAI systems: "
+               "LangGraph agents, RAG pipelines and production ML.")
+PERSON = {
+    "@context": "https://schema.org", "@type": "Person", "name": "Abhineet Sharma",
+    "jobTitle": "Data Scientist & AI Engineer", "worksFor": {"@type": "Organization", "name": "GEDU Services"},
+    "address": {"@type": "PostalAddress", "addressLocality": "Noida", "addressCountry": "IN"},
+    "email": "mailto:abhineetsharma77@gmail.com",
+    "sameAs": ["https://github.com/divergent99", "https://linkedin.com/in/abhineet-sharma-/",
+               "https://abhineetsharma77.medium.com/"],
+    "knowsAbout": ["Generative AI", "LangGraph", "RAG", "Multi-agent systems", "Machine Learning", "FastAPI"],
+}
+BODY = render(app.layout)
+FA = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+TEMPLATE = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>document.documentElement.classList.add("js")</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Abhineet Sharma | Data Scientist &amp; AI Engineer</title>
+<meta name="description" content="{escape(DESCRIPTION)}">
+<meta name="theme-color" content="#070b14">
+<link rel="canonical" href="{{origin}}/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{origin}}/">
+<meta property="og:title" content="Abhineet Sharma | Data Scientist &amp; AI Engineer">
+<meta property="og:description" content="4+ years shipping GenAI, RAG and multi-agent systems. Built in the rain.">
+<meta property="og:image" content="{{origin}}/assets/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="675">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{{origin}}/assets/img/og.jpg">
+<link rel="icon" href="/assets/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" type="image/webp" href="/assets/img/ronin.webp" media="(min-width: 761px)">
+<link rel="preload" as="image" type="image/webp" href="/assets/img/ronin-mobile.webp" media="(max-width: 760px)">
+<link rel="stylesheet" href="{FONTS}">
+<link rel="stylesheet" href="{FA}" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="{FA}"></noscript>
+<link rel="stylesheet" href="/assets/style.css?v={_v('style.css')}">
+<script type="application/ld+json">{json.dumps(PERSON)}</script>
+</head>
+<body>
+{BODY}
+<script src="/assets/main.js?v={_v('main.js')}" defer></script>
+</body>
+</html>"""
+
+
+def _origin():
+    proto = request.headers.get("X-Forwarded-Proto", request.scheme).split(",")[0].strip()
+    if request.host.endswith(".railway.app") or request.host.endswith(".dev"):
+        proto = "https"
+    return f"{proto}://{request.host}"
+
+
+@server.before_request
+def serve_static_page():
+    if request.path in ("/", "/index.html"):
+        resp = Response(TEMPLATE.replace("{origin}", _origin()), mimetype="text/html")
+        resp.headers["Cache-Control"] = "public, max-age=300"
+        return resp
+    if request.path == "/robots.txt":
+        return Response(f"User-agent: *\nAllow: /\nSitemap: {_origin()}/sitemap.xml\n", mimetype="text/plain")
+    if request.path == "/sitemap.xml":
+        return Response(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+                        f"<url><loc>{_origin()}/</loc></url></urlset>", mimetype="application/xml")
+
+
+@server.after_request
+def cache_assets(resp):
+    if request.path.startswith("/assets/"):
+        versioned = bool(request.args.get("v"))
+        resp.headers["Cache-Control"] = "public, max-age=31536000, immutable" if versioned else "public, max-age=604800"
+    return resp
+
+
 if __name__ == "__main__":
-    app.run(debug=False, port=8060)
+    server.run(debug=False, port=8060)
