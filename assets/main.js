@@ -609,6 +609,31 @@
     });
   }
 
+  /* ── Case-study terminal: types itself out when scrolled into view, then loops ── */
+  function terminals() {
+    $$('.tterm').forEach(term => {
+      const lines = $$('.tline', term);
+      if (reduceMotion) { lines.forEach(l => l.classList.add('typed')); return; }
+      let running = false;
+      const run = async () => {
+        if (running) return; running = true;
+        const wait = ms => new Promise(r => setTimeout(r, ms));
+        while (true) {
+          lines.forEach(l => { l.classList.remove('typed', 'typing'); l.textContent = ''; });
+          for (const l of lines) {
+            const text = l.dataset.text, isSql = l.classList.contains('t-sql');
+            l.classList.add('typing');
+            for (let i = 1; i <= text.length; i++) { l.textContent = text.slice(0, i); await wait(isSql ? 14 : 28); }
+            l.classList.remove('typing'); l.classList.add('typed');
+            await wait(l.classList.contains('t-q') ? 500 : 220);
+          }
+          await wait(4200);
+        }
+      };
+      new IntersectionObserver((es, io) => { if (es[0].isIntersecting) { run(); io.disconnect(); } }, { threshold: 0.4 }).observe(term);
+    });
+  }
+
   /* ── Keys + easter egg ─────────────────────────────────────────── */
   function keys() {
     let buf = '';
@@ -632,7 +657,7 @@
   function boot() {
     if (booted || !$('#hero-img') || !$('.site-footer')) return false;
     booted = true;
-    Rain.init(); Hero.init(); typewriter(); reveal(); nav(); projects(); cursor(); ripples(); copyEmail(); archGraphs(); keys();
+    Rain.init(); Hero.init(); typewriter(); reveal(); nav(); projects(); cursor(); ripples(); copyEmail(); archGraphs(); terminals(); keys();
     console.log('%c浪人 %cYou opened the console. Respect.\nType "bushido" on the page for weather.',
       'color:#d4402f;font:800 20px serif', 'color:#e9e4d8;font:12px monospace');
     return true;

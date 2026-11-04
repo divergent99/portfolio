@@ -290,7 +290,9 @@ CASES = [
         "title": "GBS Assistant",
         "problem": "Students and staff were digging through 450+ pages of site content and PDFs to find course, fee and admissions answers.",
         "build": "LangGraph pipeline with recursive site crawling, PDF and table extraction, and ChromaDB retrieval on domain-tuned embeddings. Answers are citation-first and self-checked before they stream out over FastAPI SSE.",
-        "metric": "450+", "metric_label": "pages indexed, every answer cited",
+        "metric": "453", "metric_label": "pages indexed, every answer cited",
+        "facts": [("768", "dim embeddings, nomic-embed v1.5"), ("2", "source types: site + PDFs"),
+                  ("1", "self-check pass per answer"), ("SSE", "streamed token by token")],
         "graph": "gbs",
         "stack": ["LangGraph", "ChromaDB", "FastAPI", "Claude API"],
     },
@@ -300,6 +302,8 @@ CASES = [
         "problem": "Analysts hand-built commercial due diligence decks from data-room documents on every engagement.",
         "build": "Docling parses the documents, Azure OpenAI extracts the facts, and python-pptx renders a finished deck in the firm's format.",
         "metric": "60%", "metric_label": "less analyst prep time per engagement",
+        "facts": [("3", "stages: parse, extract, render"), ("50%+", "analyst effort cut across A&M builds"),
+                  ("35%", "better data capture in OCR + ASR ingestion")],
         "graph": "cdd", "bars": [("Manual prep", 100), ("With automation", 40)],
         "stack": ["Docling", "Azure OpenAI", "python-pptx", "FastAPI"],
     },
@@ -309,6 +313,16 @@ CASES = [
         "problem": "Deal teams needed portfolio numbers on demand without writing SQL, and the answers had to match the Power BI dashboards exactly.",
         "build": "LangGraph agent over DuckDB with Azure OpenAI, semantic caching, follow-up question detection and SSE streaming. Calculations are aligned to the existing Power BI / DAX definitions.",
         "metric": "DAX", "metric_label": "aligned, so the numbers match the dashboards",
+        "facts": [("5", "pipeline stages"), ("1", "semantic cache in front of the LLM"),
+                  ("SSE", "streamed answers"), ("0", "SQL written by the analyst")],
+        "terminal": [
+            ("q", "Revenue trend for Portfolio Co. B, last 4 quarters?"),
+            ("info", "follow-up: no · cache: miss"),
+            ("sql", "SELECT quarter, SUM(revenue) AS revenue"),
+            ("sql", "FROM fact_financials WHERE company = 'B'"),
+            ("sql", "GROUP BY quarter ORDER BY quarter DESC LIMIT 4;"),
+            ("ok", "DuckDB → DAX-aligned answer streaming…"),
+        ],
         "graph": "rapid",
         "stack": ["LangGraph", "DuckDB", "Azure OpenAI", "FastAPI"],
     },
@@ -399,6 +413,18 @@ def case_card(c, i):
         html.Div(c["metric"], className="case-metric"),
         html.Div(c["metric_label"], className="case-metric-label"),
     ]
+    if c.get("facts"):
+        side.append(html.Div([
+            html.Div([html.Div(n, className="fact-num"), html.Div(l, className="fact-label")], className="fact")
+            for n, l in c["facts"]
+        ], className="case-facts"))
+    if c.get("terminal"):
+        side.append(html.Div([
+            html.Div([html.Span(className="tdot"), html.Span(className="tdot"), html.Span(className="tdot"),
+                      html.Span("rapid · illustrative query", className="tterm-title")], className="tterm-bar"),
+            html.Div([html.Div(t, className=f"tline t-{k}", **{"data-text": t}) for k, t in c["terminal"]],
+                     className="tterm-body"),
+        ], className="tterm"))
     if c.get("bars"):
         side.append(html.Div([
             html.Div([

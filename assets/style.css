@@ -702,3 +702,29 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
   .hero-quip { display: none; }
   .stat-num { font-size: 30px; }
 }
+
+/* case side: fact tiles + terminal */
+.case-side { justify-content: flex-start; gap: 4px; }
+.case-metric-label { margin-bottom: 14px; }
+.case-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; margin-bottom: 14px; }
+.fact { padding: 10px 12px; border-radius: 10px; background: rgba(233,228,216,.035); border: 1px solid var(--line); transition: border-color .25s, background .25s; }
+.fact:hover { border-color: rgba(246,165,74,.3); background: rgba(246,165,74,.05); }
+.fact-num { font-family: var(--serif); font-weight: 800; font-size: 22px; line-height: 1.1; color: var(--paper); }
+.fact:nth-child(odd) .fact-num { color: var(--lantern-soft); }
+.fact-label { font-size: 11.5px; color: var(--muted); line-height: 1.35; margin-top: 3px; }
+.case-facts:has(.fact:nth-child(3):last-child) .fact:last-child { grid-column: span 2; }
+.case-bars { margin-top: 4px; }
+.tterm { width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: rgba(5,8,14,.85); font-family: var(--mono); font-size: 11.5px; }
+.tterm-bar { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-bottom: 1px solid var(--line); background: rgba(233,228,216,.03); }
+.tdot { width: 8px; height: 8px; border-radius: 50%; background: #3a4458; }
+.tdot:first-child { background: var(--crimson); }
+.tterm-title { margin-left: 8px; color: var(--dim); font-size: 10.5px; }
+.tterm-body { padding: 10px 12px; min-height: 128px; }
+.tline { white-space: pre-wrap; word-break: break-word; line-height: 1.6; }
+.tline.t-q { color: var(--paper); } .tline.t-q::before { content: '> '; color: var(--crimson); }
+.tline.t-info { color: var(--muted); } .tline.t-info::before { content: '# '; }
+.tline.t-sql { color: var(--rain); padding-left: 12px; }
+.tline.t-ok { color: #b9d39c; }
+.js .tterm .tline { visibility: hidden; }
+.js .tterm .tline.typed, .js .tterm .tline.typing { visibility: visible; }
+.tline.typing::after { content: ''; display: inline-block; width: 6px; height: 1em; vertical-align: -2px; margin-left: 2px; background: var(--lantern); animation: blink 1s steps(1) infinite; }
