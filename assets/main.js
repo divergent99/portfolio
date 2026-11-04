@@ -577,6 +577,38 @@
     });
   }
 
+  /* ── Architecture graphs: hover a node to trace its upstream + downstream ── */
+  function archGraphs() {
+    $$('svg.arch').forEach(svg => {
+      const edges = $$('.edge', svg), nodes = $$('.node', svg);
+      const walk = (start, dir) => {          // dir: 'to' = downstream, 'from' = upstream
+        const seen = new Set([start]), lit = new Set(), q = [start];
+        while (q.length) {
+          const n = q.shift();
+          edges.forEach(e => {
+            const a = e.dataset.from, b = e.dataset.to, [here, there] = dir === 'to' ? [a, b] : [b, a];
+            if (here === n && !e.classList.contains('dashed')) { lit.add(e); if (!seen.has(there)) { seen.add(there); q.push(there); } }
+          });
+        }
+        return [seen, lit];
+      };
+      const trace = node => {
+        const k = node.dataset.node, [d1, e1] = walk(k, 'to'), [d2, e2] = walk(k, 'from');
+        svg.classList.add('tracing');
+        nodes.forEach(n => n.classList.toggle('lit', d1.has(n.dataset.node) || d2.has(n.dataset.node)));
+        edges.forEach(e => e.classList.toggle('lit', e1.has(e) || e2.has(e)));
+      };
+      const clear = () => { svg.classList.remove('tracing'); $$('.lit', svg).forEach(x => x.classList.remove('lit')); };
+      nodes.forEach(n => {
+        n.addEventListener('pointerenter', () => trace(n));
+        n.addEventListener('focus', () => trace(n));
+        n.addEventListener('click', () => (n.classList.contains('lit') && svg.classList.contains('tracing') ? clear() : trace(n)));
+        n.addEventListener('blur', clear);
+      });
+      svg.addEventListener('pointerleave', clear);
+    });
+  }
+
   /* ── Keys + easter egg ─────────────────────────────────────────── */
   function keys() {
     let buf = '';
@@ -600,7 +632,7 @@
   function boot() {
     if (booted || !$('#hero-img') || !$('.site-footer')) return false;
     booted = true;
-    Rain.init(); Hero.init(); typewriter(); reveal(); nav(); projects(); cursor(); ripples(); copyEmail(); keys();
+    Rain.init(); Hero.init(); typewriter(); reveal(); nav(); projects(); cursor(); ripples(); copyEmail(); archGraphs(); keys();
     console.log('%c浪人 %cYou opened the console. Respect.\nType "bushido" on the page for weather.',
       'color:#d4402f;font:800 20px serif', 'color:#e9e4d8;font:12px monospace');
     return true;

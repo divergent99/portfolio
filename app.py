@@ -291,7 +291,7 @@ CASES = [
         "problem": "Students and staff were digging through 450+ pages of site content and PDFs to find course, fee and admissions answers.",
         "build": "LangGraph pipeline with recursive site crawling, PDF and table extraction, and ChromaDB retrieval on domain-tuned embeddings. Answers are citation-first and self-checked before they stream out over FastAPI SSE.",
         "metric": "450+", "metric_label": "pages indexed, every answer cited",
-        "flow": ["Crawl", "Extract", "Embed", "Retrieve", "Self-check", "Stream"],
+        "graph": "gbs",
         "stack": ["LangGraph", "ChromaDB", "FastAPI", "Claude API"],
     },
     {
@@ -300,7 +300,7 @@ CASES = [
         "problem": "Analysts hand-built commercial due diligence decks from data-room documents on every engagement.",
         "build": "Docling parses the documents, Azure OpenAI extracts the facts, and python-pptx renders a finished deck in the firm's format.",
         "metric": "60%", "metric_label": "less analyst prep time per engagement",
-        "flow": ["Parse", "Extract facts", "Render deck"],
+        "graph": "cdd", "bars": [("Manual prep", 100), ("With automation", 40)],
         "stack": ["Docling", "Azure OpenAI", "python-pptx", "FastAPI"],
     },
     {
@@ -309,7 +309,7 @@ CASES = [
         "problem": "Deal teams needed portfolio numbers on demand without writing SQL, and the answers had to match the Power BI dashboards exactly.",
         "build": "LangGraph agent over DuckDB with Azure OpenAI, semantic caching, follow-up question detection and SSE streaming. Calculations are aligned to the existing Power BI / DAX definitions.",
         "metric": "DAX", "metric_label": "aligned, so the numbers match the dashboards",
-        "flow": ["Question", "Cache check", "SQL", "DuckDB", "Answer"],
+        "graph": "rapid",
         "stack": ["LangGraph", "DuckDB", "Azure OpenAI", "FastAPI"],
     },
 ]
@@ -395,11 +395,18 @@ def project_card(p, i):
 
 
 def case_card(c, i):
-    flow = []
-    for j, step in enumerate(c["flow"]):
-        if j:
-            flow.append(html.I(className="fa-solid fa-arrow-right-long flow-arrow"))
-        flow.append(html.Span(step, className="flow-step"))
+    side = [
+        html.Div(c["metric"], className="case-metric"),
+        html.Div(c["metric_label"], className="case-metric-label"),
+    ]
+    if c.get("bars"):
+        side.append(html.Div([
+            html.Div([
+                html.Div([html.Span(label), html.Span(f"{v}%", className="bar-v")], className="bar-head"),
+                html.Div(html.Div(className="bar-fill" + (" after" if j else ""), style={"--w": f"{v}%"}), className="bar-track"),
+            ], className="bar")
+            for j, (label, v) in enumerate(c["bars"])
+        ], className="case-bars"))
     return html.Article([
         html.Div([
             html.Div([html.Span(f"0{i+1}", className="case-num"), html.Span(c["org"])], className="case-org"),
@@ -411,11 +418,11 @@ def case_card(c, i):
             ], className="case-body"),
             html.Div([stack_tag(t) for t in c["stack"]], className="card-stack"),
         ], className="case-main"),
+        html.Div(side, className="case-side"),
         html.Div([
-            html.Div(c["metric"], className="case-metric"),
-            html.Div(c["metric_label"], className="case-metric-label"),
-            html.Div(flow, className="case-flow"),
-        ], className="case-side"),
+            html.Div([html.Span("Architecture", className="case-k"), html.Span("live data flow", className="arch-live")], className="arch-head"),
+            html.Div(className="case-graph", **{"data-graph": c["graph"]}),
+        ], className="case-arch"),
     ], className="case-card reveal")
 
 
@@ -730,7 +737,12 @@ PERSON = {
                "https://abhineetsharma77.medium.com/"],
     "knowsAbout": ["Generative AI", "LangGraph", "RAG", "Multi-agent systems", "Machine Learning", "FastAPI"],
 }
+from graphs import graph_html, GRAPHS
+
 BODY = render(app.layout)
+for _key in GRAPHS:
+    BODY = BODY.replace(f'<div class="case-graph" data-graph="{_key}"></div>',
+                        f'<div class="case-graph" data-graph="{_key}">{graph_html(_key)}</div>')
 FA = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 TEMPLATE = f"""<!DOCTYPE html>
 <html lang="en">

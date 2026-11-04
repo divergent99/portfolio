@@ -582,14 +582,14 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
 /* ── CASE STUDIES ───────────────────────────────────────────────── */
 .cases { display: grid; gap: 18px; }
 .case-card {
-  position: relative; display: grid; grid-template-columns: 1.55fr 1fr; overflow: hidden;
+  position: relative; display: grid; grid-template-columns: 1.55fr 1fr; grid-template-areas: 'main side' 'arch arch'; overflow: hidden;
   border-radius: var(--radius); border: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(22,32,47,.8), rgba(11,18,32,.85));
   transition: border-color .3s ease;
 }
 .case-card:hover { border-color: rgba(212,64,47,.35); }
 .case-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(var(--crimson), var(--crimson-deep) 70%, transparent); }
-.case-main { padding: 28px 28px 24px 32px; }
+.case-main { grid-area: main; padding: 28px 28px 24px 32px; }
 .case-org { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .case-num { color: var(--crimson); }
 .case-title { font-family: var(--serif); font-size: clamp(24px, 3vw, 32px); font-weight: 800; margin: 8px 0 6px; }
@@ -600,7 +600,7 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
 .case-block p { font-size: 14px; color: var(--paper-2); }
 .case-card .card-stack { margin: 0; }
 .case-side {
-  display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 28px;
+  grid-area: side; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 28px;
   border-left: 1px solid var(--line);
   background: radial-gradient(320px 220px at 70% 20%, rgba(246,165,74,.12), transparent 70%), rgba(7,11,20,.35);
 }
@@ -615,7 +615,7 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
 .case-card.visible .flow-step:nth-of-type(6) { animation-delay: .75s }
 @keyframes stepIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
 @media (max-width: 980px) {
-  .case-card { grid-template-columns: 1fr; }
+  .case-card { grid-template-columns: 1fr; grid-template-areas: 'main' 'side' 'arch'; }
   .case-side { border-left: 0; border-top: 1px solid var(--line); }
 }
 @media (max-width: 640px) {
@@ -623,3 +623,60 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
   .case-main { padding: 22px 20px 20px 24px; }
   .case-side { padding: 22px 20px 22px 24px; }
 }
+
+/* before/after bars */
+.case-bars { display: grid; gap: 12px; width: 100%; max-width: 320px; }
+.bar-head { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+.bar-v { font-family: var(--mono); color: var(--paper-2); }
+.bar-track { height: 8px; border-radius: 6px; background: rgba(233,228,216,.06); overflow: hidden; }
+.bar-fill { height: 100%; width: 0; border-radius: 6px; background: linear-gradient(90deg, #566074, #8b94a5); transition: width 1.4s var(--ease) .3s; }
+.bar-fill.after { background: linear-gradient(90deg, var(--crimson-deep), var(--lantern)); box-shadow: 0 0 12px rgba(246,165,74,.4); transition-delay: .7s; }
+.case-card.visible .bar-fill { width: var(--w); }
+
+/* architecture graph */
+.case-arch {
+  grid-area: arch; padding: 18px 28px 20px 32px; border-top: 1px solid var(--line);
+  background-color: rgba(7,11,20,.45);
+  background-image: radial-gradient(rgba(155,180,214,.10) 1px, transparent 1px); background-size: 18px 18px;
+}
+.arch-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.arch-head .case-k { margin: 0; }
+.arch-live { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+.arch-live::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--crimson); animation: pulse 2s infinite; box-shadow: 0 0 0 0 rgba(212,64,47,.6); }
+.case-graph { width: 100%; overflow: hidden; }
+.arch { display: block; width: 100%; height: auto; overflow: visible; font-family: var(--sans); }
+.arch-v { display: none; max-width: 440px; margin: 0 auto; }
+.arch .edge path { fill: none; stroke: rgba(233,228,216,.28); stroke-width: 1.4; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke .25s, stroke-width .25s, opacity .25s; }
+.case-card.visible .arch .edge path { animation: drawEdge 1.2s var(--ease) forwards; }
+.arch .edge.dashed path { stroke-dasharray: .02 .015; stroke-dashoffset: 0; animation: none !important; stroke: rgba(246,165,74,.45); }
+@keyframes drawEdge { to { stroke-dashoffset: 0; } }
+.arch .packet { filter: drop-shadow(0 0 4px currentColor); opacity: .95; }
+.arch .node rect:first-child { fill: rgba(16,24,38,.96); stroke-width: 1; stroke-opacity: .45; transition: stroke-opacity .25s, fill .25s; }
+.arch .node { cursor: default; outline: none; transition: opacity .25s; }
+.arch .node-title { fill: var(--paper); font-size: 12.5px; font-weight: 600; }
+.arch .node-title.big { font-size: 13.5px; }
+.arch-v .edge-label { font-size: 13px; }
+.arch .node-sub { fill: var(--muted); font-size: 10.5px; font-family: var(--mono); }
+.arch .edge-label { fill: var(--lantern); font-size: 10.5px; font-family: var(--mono); paint-order: stroke; stroke: var(--night); stroke-width: 4px; }
+.arch .node.kind-llm rect:first-child { fill: rgba(40,28,14,.92); }
+/* hover trace (classes set by main.js) */
+.arch.tracing .node { opacity: .28; }
+.arch.tracing .edge { opacity: .12; }
+.arch.tracing .node.lit, .arch.tracing .edge.lit { opacity: 1; }
+.arch .node.lit rect:first-child { stroke-opacity: 1; }
+.arch .edge.lit path { stroke: var(--lantern); stroke-width: 2; }
+.arch-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 11.5px; color: var(--muted); }
+.arch-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.arch-legend i { width: 8px; height: 8px; border-radius: 2px; }
+.arch-legend .arch-hint { margin-left: auto; font-family: var(--mono); font-size: 10.5px; }
+@media (max-width: 760px) {
+  .arch-h { display: none; }
+  .arch-v { display: block; }
+  .case-arch { padding: 16px 16px 18px 22px; }
+  .arch-legend .arch-hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arch .packet { display: none; }
+  .arch .edge path { stroke-dashoffset: 0; }
+}
+@media (hover: none) { .arch-legend .arch-hint { display: none; } }
