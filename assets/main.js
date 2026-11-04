@@ -129,6 +129,7 @@
     frame() {
       const c = this.ctx;
       if (document.hidden) { this.running = false; return; }
+      if (document.body.classList.contains('menu-open')) { requestAnimationFrame(() => this.frame()); return; }
       c.clearRect(0, 0, this.W, this.H);
       this.wind = lerp(this.wind, this.windTarget, 0.03);
 
@@ -486,7 +487,7 @@
     const setMenu = open => {
       document.body.classList.toggle('menu-open', open);
       burger.setAttribute('aria-expanded', String(open));
-      document.body.style.overflow = open ? 'hidden' : '';
+      document.documentElement.style.overflow = open ? 'hidden' : '';
     };
     burger.addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
     $$('#mobile-menu a').forEach(a => a.addEventListener('click', () => setMenu(false)));

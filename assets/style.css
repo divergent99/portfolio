@@ -177,15 +177,29 @@ body.menu-open .burger span:nth-child(3) { transform: translateY(-5px) rotate(-4
 
 #mobile-menu {
   position: fixed; inset: 0; z-index: 99; display: flex; flex-direction: column; justify-content: center;
-  padding: 0 32px; background: rgba(7,11,20,.96); backdrop-filter: blur(16px);
-  clip-path: circle(0% at calc(100% - 40px) 34px); transition: clip-path .7s var(--ease); visibility: hidden;
+  padding: 0 32px; background: #070b14;
+  opacity: 0; visibility: hidden; transform: translate3d(0, -12px, 0);
+  transition: opacity .3s ease, transform .35s var(--ease), visibility 0s linear .35s;
+  will-change: opacity, transform; backface-visibility: hidden; contain: layout paint;
 }
-body.menu-open #mobile-menu { clip-path: circle(150% at calc(100% - 40px) 34px); visibility: visible; }
+#mobile-menu::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(500px 400px at 85% 10%, rgba(212,64,47,.12), transparent 70%),
+              radial-gradient(400px 400px at 10% 90%, rgba(246,165,74,.06), transparent 70%);
+}
+body.menu-open #mobile-menu {
+  opacity: 1; visibility: visible; transform: none;
+  transition: opacity .3s ease, transform .35s var(--ease), visibility 0s;
+}
+/* no backdrop blur behind or above the open menu: that is what made it flicker */
+body.menu-open #navbar { background: transparent; border-bottom-color: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+body.menu-open #rain, body.menu-open #flash { visibility: hidden; }
 .mobile-links { display: flex; flex-direction: column; gap: 6px; }
+.mobile-links { position: relative; }
 .mobile-links a {
-  font-family: var(--serif); font-size: clamp(32px, 9vw, 46px); font-weight: 700; padding: 6px 0;
-  display: flex; align-items: baseline; gap: 14px; opacity: 0; transform: translateY(16px);
-  transition: opacity .5s ease, transform .5s var(--ease), color .2s;
+  font-family: var(--serif); font-size: clamp(30px, 8.5vw, 42px); font-weight: 700; padding: 6px 0;
+  display: flex; align-items: baseline; gap: 14px; opacity: 0; transform: translate3d(0, 12px, 0);
+  transition: opacity .35s ease, transform .4s var(--ease), color .2s;
 }
 .mobile-links a:hover { color: var(--crimson); }
 .mobile-links .num { font-family: var(--mono); font-size: 12px; color: var(--crimson); }
