@@ -293,6 +293,15 @@ CASES = [
         "metric": "453", "metric_label": "pages indexed, every answer cited",
         "facts": [("768", "dim embeddings, nomic-embed v1.5"), ("2", "source types: site + PDFs"),
                   ("1", "self-check pass per answer"), ("SSE", "streamed token by token")],
+        "term_title": "gbs · illustrative query",
+        "terminal": [
+            ("q", "What are the entry requirements for the business degree?"),
+            ("info", "retrieve: top-k chunks from ChromaDB"),
+            ("sql", "[1] admissions / undergraduate entry"),
+            ("sql", "[2] course page / requirements table"),
+            ("info", "self-check: grounded in sources ✓"),
+            ("ok", "streaming answer with 2 citations…"),
+        ],
         "graph": "gbs",
         "stack": ["LangGraph", "ChromaDB", "FastAPI", "Claude API"],
     },
@@ -303,8 +312,17 @@ CASES = [
         "build": "Docling parses the documents, Azure OpenAI extracts the facts, and python-pptx renders a finished deck in the firm's format.",
         "metric": "60%", "metric_label": "less analyst prep time per engagement",
         "facts": [("3", "stages: parse, extract, render"), ("50%+", "analyst effort cut across A&M builds"),
-                  ("35%", "better data capture in OCR + ASR ingestion")],
-        "graph": "cdd", "bars": [("Manual prep", 100), ("With automation", 40)],
+                  ("35%", "better data capture in OCR + ASR ingestion"), ("PPTX", "native, editable slides")],
+        "term_title": "cdd · illustrative run",
+        "terminal": [
+            ("q", "build_deck --engagement target_co"),
+            ("info", "docling: parsing data room documents"),
+            ("sql", "market_size      → extracted"),
+            ("sql", "competitor_set   → extracted"),
+            ("sql", "customer_mix     → extracted"),
+            ("ok", "python-pptx → CDD_deck.pptx ready for review"),
+        ],
+        "graph": "cdd",
         "stack": ["Docling", "Azure OpenAI", "python-pptx", "FastAPI"],
     },
     {
@@ -315,6 +333,7 @@ CASES = [
         "metric": "DAX", "metric_label": "aligned, so the numbers match the dashboards",
         "facts": [("5", "pipeline stages"), ("1", "semantic cache in front of the LLM"),
                   ("SSE", "streamed answers"), ("0", "SQL written by the analyst")],
+        "term_title": "rapid · illustrative query",
         "terminal": [
             ("q", "Revenue trend for Portfolio Co. B, last 4 quarters?"),
             ("info", "follow-up: no · cache: miss"),
@@ -421,7 +440,7 @@ def case_card(c, i):
     if c.get("terminal"):
         side.append(html.Div([
             html.Div([html.Span(className="tdot"), html.Span(className="tdot"), html.Span(className="tdot"),
-                      html.Span("rapid · illustrative query", className="tterm-title")], className="tterm-bar"),
+                      html.Span(c["term_title"], className="tterm-title")], className="tterm-bar"),
             html.Div([html.Div(t, className=f"tline t-{k}", **{"data-text": t}) for k, t in c["terminal"]],
                      className="tterm-body"),
         ], className="tterm"))
