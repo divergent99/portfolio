@@ -254,8 +254,8 @@ body.menu-open .mobile-links a:nth-child(4) { transition-delay: .15s } body.menu
 .hero-eyebrow { font-family: var(--mono); font-size: 13px; color: var(--lantern); letter-spacing: .08em; margin-bottom: 12px; }
 .hero-eyebrow::before { content: ''; display: inline-block; width: 22px; height: 2px; margin-right: 10px; vertical-align: middle; background: var(--crimson); }
 .hero-name {
-  font-family: var(--serif); font-weight: 800; line-height: .98; letter-spacing: -.01em;
-  font-size: clamp(52px, 10vw, 124px); display: flex; flex-direction: column; margin-bottom: 18px;
+  font-family: var(--serif); font-weight: 700; line-height: 1.02; letter-spacing: -.01em;
+  font-size: clamp(44px, 6.4vw, 88px); display: flex; flex-direction: column; margin-bottom: 16px;
   text-shadow: 0 6px 40px rgba(0,0,0,.6);
 }
 .hero-name .last {
@@ -275,7 +275,7 @@ body.menu-open .mobile-links a:nth-child(4) { transition-delay: .15s } body.menu
   background: var(--lantern); animation: blink 1s steps(1) infinite; box-shadow: 0 0 10px var(--lantern);
 }
 @keyframes blink { 50% { opacity: 0; } }
-.hero-desc { max-width: 560px; font-size: clamp(15px, 1.6vw, 17px); color: var(--paper-2); margin-bottom: 30px; }
+.hero-desc { max-width: 520px; font-size: clamp(14.5px, 1.4vw, 16px); color: var(--paper-2); margin-bottom: 30px; }
 .hero-quip { display: block; margin-top: 8px; font-family: var(--serif); font-style: italic; color: var(--lantern-soft); }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 46px; }
 
@@ -562,7 +562,7 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
   .site-footer { justify-content: center; text-align: center; }
 }
 @media (max-width: 380px) {
-  .hero-name { font-size: 46px; }
+  .hero-name { font-size: 40px; }
   .hero-ctas a:last-child { display: none; }
 }
 @media (hover: none) {
@@ -573,3 +573,4 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   .reveal { opacity: 1; transform: none; filter: none; }
 }
+@media (min-width: 761px) and (max-width: 1359px) { .hero-vertical { display: none; } }

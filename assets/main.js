@@ -191,38 +191,154 @@
   };
 
   /* ══════════════════════════════════════════════════════════════
-     SOUND (procedural, no audio files)
+     SOUND · layered procedural rain (no audio files)
+       wash    : stereo pink noise, the distant "shhh" of rain on a forest
+       patter  : pre-rendered buffers of thousands of tiny droplet ticks
+       body    : brown-noise low end, heavier in storms
+       drops   : real-time Minnaert bubble chirps + leaf splats, panned
+       eaves   : a steady drip from the shrine roof, just to your right
+       space   : generated stereo reverb so it all sits outdoors
      ══════════════════════════════════════════════════════════════ */
   const Sound = {
-    on: false, ctx: null, gain: null, filter: null,
-    noise(seconds, brown) {
-      const len = this.ctx.sampleRate * seconds, buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate), d = buf.getChannelData(0);
-      let b0 = 0, b1 = 0, b2 = 0, last = 0;
-      for (let i = 0; i < len; i++) {
-        const w = Math.random() * 2 - 1;
-        if (brown) { last = (last + 0.02 * w) / 1.02; d[i] = last * 3.5; }
-        else { b0 = 0.99765 * b0 + w * 0.0990460; b1 = 0.96300 * b1 + w * 0.2965164; b2 = 0.57000 * b2 + w * 1.0526913; d[i] = (b0 + b1 + b2 + w * 0.1848) * 0.11; }
-      }
+    on: false, ctx: null, timer: null, next: {},
+    LEVELS: {
+      drizzle: { wash: 0.48, light: 0.85, heavy: 0.00, body: 0.16, hp: 700, lp: 6500, bubbles: 2.5, splats: 7, eaves: true },
+      storm:   { wash: 0.55, light: 0.25, heavy: 0.75, body: 0.40, hp: 400, lp: 10000, bubbles: 6, splats: 22, eaves: true },
+      off:     { wash: 0, light: 0, heavy: 0, body: 0, hp: 700, lp: 6500, bubbles: 0, splats: 0, eaves: false },
+    },
+
+    /* ── buffers ── */
+    stereo(seconds, fill) {
+      const sr = this.ctx.sampleRate, len = Math.floor(sr * seconds), buf = this.ctx.createBuffer(2, len, sr);
+      for (let ch = 0; ch < 2; ch++) fill(buf.getChannelData(ch), sr, ch);
       return buf;
     },
+    pink(d) {
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (let i = 0; i < d.length; i++) {
+        const w = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.96900 * b2 + w * 0.1538520;
+        b3 = 0.86650 * b3 + w * 0.3104856; b4 = 0.55000 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.0168980;
+        d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11; b6 = w * 0.115926;
+      }
+    },
+    brown(d) { let l = 0; for (let i = 0; i < d.length; i++) { l = (l + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = l * 3.5; } },
+    // Thousands of 1-5 ms droplet ticks, exponential loudness so a few stand out
+    patter(rate) {
+      return this.stereo(8, (d, sr, ch) => {
+        const n = Math.floor(rate * 8);
+        for (let k = 0; k < n; k++) {
+          const at = Math.floor(Math.random() * d.length), dur = Math.floor(sr * (0.001 + Math.random() * 0.004));
+          const amp = Math.min(1, -Math.log(Math.random()) * 0.12) * (Math.random() < 0.5 ? 1 : 0.35);
+          const tone = 0.3 + Math.random() * 0.6;
+          let prev = 0;
+          for (let j = 0; j < dur && at + j < d.length; j++) {
+            const env = Math.exp(-j / (dur * 0.25));
+            const w = Math.random() * 2 - 1; prev = prev * tone + w * (1 - tone);   // per-drop timbre
+            d[at + j] += (w - prev) * amp * env;
+          }
+        }
+      });
+    },
+    impulse(seconds) {
+      return this.stereo(seconds, (d, sr) => {
+        let lp = 0;
+        for (let i = 0; i < d.length; i++) {
+          const t = i / d.length; lp = lp * 0.6 + (Math.random() * 2 - 1) * 0.4;
+          d[i] = lp * Math.pow(1 - t, 3.2) * (i < sr * 0.012 ? i / (sr * 0.012) : 1);
+        }
+      });
+    },
+
+    loop(buf, ...chain) {
+      const src = this.ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+      src.loopStart = 0; src.start(0, Math.random() * buf.duration);
+      chain.reduce((n, m) => (n.connect(m), m), src);
+      return src;
+    },
+    filter(type, f, q) { const b = this.ctx.createBiquadFilter(); b.type = type; b.frequency.value = f; if (q) b.Q.value = q; return b; },
+    gain(v) { const g = this.ctx.createGain(); g.gain.value = v; return g; },
+
     ensure() {
       if (this.ctx) return;
       const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
-      this.ctx = new AC();
-      const src = this.ctx.createBufferSource(); src.buffer = this.noise(4); src.loop = true;
-      const hp = this.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 380;
-      this.filter = this.ctx.createBiquadFilter(); this.filter.type = 'lowpass'; this.filter.frequency.value = 6000;
-      this.gain = this.ctx.createGain(); this.gain.gain.value = 0;
-      src.connect(hp).connect(this.filter).connect(this.gain).connect(this.ctx.destination); src.start();
+      const c = this.ctx = new AC();
+
+      const comp = c.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 3;
+      this.master = this.gain(0); this.master.connect(comp).connect(c.destination);
+      this.dry = this.gain(1); this.dry.connect(this.master);
+      const verb = c.createConvolver(); verb.buffer = this.impulse(2.6);
+      this.send = this.gain(1); this.send.connect(verb).connect(this.gain(0.35)).connect(this.master);
+
+      // wash
+      this.washHP = this.filter('highpass', 700); this.washLP = this.filter('lowpass', 6500);
+      this.washG = this.gain(0); this.gust = this.gain(1);
+      this.loop(this.stereo(7, d => this.pink(d)), this.washHP, this.washLP, this.washG, this.gust, this.dry);
+      this.gust.connect(this.send);
+
+      // patter
+      const tickHP = this.filter('highpass', 1400), tickPeak = this.filter('peaking', 4200, 0.8); tickPeak.gain.value = 4;
+      tickHP.connect(tickPeak).connect(this.dry); tickPeak.connect(this.send);
+      this.lightG = this.gain(0); this.heavyG = this.gain(0);
+      this.loop(this.patter(260), this.lightG, tickHP);
+      this.loop(this.patter(1100), this.heavyG, tickHP);
+
+      // body
+      this.bodyG = this.gain(0);
+      this.loop(this.stereo(6, d => this.brown(d)), this.filter('lowpass', 380), this.bodyG, this.dry);
+
+      // shared short noise for splats
+      this.splatBuf = this.stereo(0.05, d => { for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; });
+      this.eavesPitch = 820 + Math.random() * 300;
     },
+
+    /* ── one-shot events ── */
+    pan(v) { const p = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : this.gain(1); if (p.pan) p.pan.value = v; return p; },
+    bubble(t, f0, amp, pan, wet) {
+      const c = this.ctx, o = c.createOscillator(), g = this.gain(0), p = this.pan(pan), dur = 0.018 + Math.random() * 0.03;
+      o.type = 'sine'; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * (1.4 + Math.random() * 0.6), t + dur);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(amp, t + 0.0015); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(p).connect(this.dry); if (wet) p.connect(this.send);
+      o.start(t); o.stop(t + dur + 0.02);
+    },
+    splat(t, amp, pan) {
+      const s = this.ctx.createBufferSource(), bp = this.filter('bandpass', 900 + Math.random() * 2600, 1.2 + Math.random() * 2);
+      const g = this.gain(0), p = this.pan(pan), dur = 0.006 + Math.random() * 0.02;
+      s.buffer = this.splatBuf; g.gain.setValueAtTime(amp, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      s.connect(bp).connect(g).connect(p).connect(this.dry); p.connect(this.send);
+      s.start(t, Math.random() * 0.02, dur + 0.01);
+    },
+    gustNow(t) {
+      const L = this.LEVELS[Rain.mode]; if (!L.wash) return;
+      const v = 0.75 + Math.random() * 0.5, len = 1.5 + Math.random() * 4;
+      this.gust.gain.setTargetAtTime(v, t, len / 3);
+      this.washLP.frequency.setTargetAtTime(L.lp * (0.8 + Math.random() * 0.35), t, len / 3);
+    },
+
+    schedule() {
+      const c = this.ctx, L = this.LEVELS[Rain.mode], now = c.currentTime, ahead = now + 0.15;
+      const exp = r => -Math.log(1 - Math.random()) / r;   // Poisson inter-arrival
+      const n = this.next;
+      if (L.bubbles) { n.b = Math.max(n.b || 0, now); while (n.b < ahead) { this.bubble(n.b, 1100 + Math.random() * 3200, 0.02 + Math.random() * 0.05, Math.random() * 1.8 - 0.9, true); n.b += exp(L.bubbles); } }
+      if (L.splats)  { n.s = Math.max(n.s || 0, now); while (n.s < ahead) { this.splat(n.s, 0.04 + Math.random() * 0.14, Math.random() * 2 - 1); n.s += exp(L.splats); } }
+      if (L.eaves)   { n.e = Math.max(n.e || 0, now); while (n.e < ahead) {
+        const t = n.e; this.bubble(t, this.eavesPitch * (0.94 + Math.random() * 0.12), 0.09, 0.55, true);
+        if (Math.random() < 0.6) this.splat(t + 0.004, 0.08, 0.55);
+        n.e += (Rain.mode === 'storm' ? 0.45 : 0.9) + Math.random() * 0.7; } }
+      n.g = Math.max(n.g || 0, now); if (n.g < ahead) { this.gustNow(n.g); n.g += 2 + Math.random() * 5; }
+    },
+
     update() {
       const btn = $('#sound-toggle');
       if (btn) { btn.classList.toggle('on', this.on); btn.innerHTML = this.on ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark"></i>'; }
       if (!this.ctx) return;
-      const vol = !this.on ? 0 : Rain.mode === 'storm' ? 0.55 : Rain.mode === 'drizzle' ? 0.28 : 0;
-      const t = this.ctx.currentTime;
-      this.gain.gain.cancelScheduledValues(t); this.gain.gain.setTargetAtTime(vol, t, 0.6);
-      this.filter.frequency.setTargetAtTime(Rain.mode === 'storm' ? 9000 : 5200, t, 0.6);
+      const L = this.LEVELS[Rain.mode], t = this.ctx.currentTime, k = 1.2;
+      this.master.gain.setTargetAtTime(this.on ? 0.9 : 0, t, 0.5);
+      this.washG.gain.setTargetAtTime(L.wash, t, k); this.lightG.gain.setTargetAtTime(L.light, t, k);
+      this.heavyG.gain.setTargetAtTime(L.heavy, t, k); this.bodyG.gain.setTargetAtTime(L.body, t, k);
+      this.washHP.frequency.setTargetAtTime(L.hp, t, k); this.washLP.frequency.setTargetAtTime(L.lp, t, k);
+      clearInterval(this.timer); this.timer = null;
+      if (this.on && Rain.mode !== 'off') this.timer = setInterval(() => { if (!document.hidden) this.schedule(); }, 40);
     },
     toggle() {
       this.on = !this.on; this.ensure();
@@ -232,10 +348,20 @@
     },
     thunder() {
       if (!this.on || !this.ctx) return;
-      const t = this.ctx.currentTime, src = this.ctx.createBufferSource(); src.buffer = this.noise(4, true);
-      const lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 160;
-      const g = this.ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.9, t + 0.15); g.gain.exponentialRampToValueAtTime(0.001, t + 3.8);
-      src.connect(lp).connect(g).connect(this.ctx.destination); src.start(); src.stop(t + 4);
+      const c = this.ctx, t = c.currentTime + 0.05, near = Math.random() < 0.4;
+      // crack: bright, short, only for close strikes
+      if (near) {
+        const s = c.createBufferSource(); s.buffer = this.stereo(0.4, d => { for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2); });
+        const g = this.gain(0.5); s.connect(this.filter('highpass', 1800)).connect(g); g.connect(this.dry); g.connect(this.send); s.start(t);
+      }
+      // rumble: brown noise with a few rolling swells, mostly reverb
+      const dur = 5 + Math.random() * 3, s = c.createBufferSource(); s.buffer = this.stereo(dur, d => this.brown(d));
+      const lp = this.filter('lowpass', near ? 260 : 150), g = this.gain(0);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(near ? 1.1 : 0.7, t + (near ? 0.12 : 0.6));
+      let tt = t + 0.8;
+      while (tt < t + dur - 1.5) { g.gain.linearRampToValueAtTime(0.25 + Math.random() * 0.6, tt); tt += 0.4 + Math.random() * 0.9; }
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      s.connect(lp).connect(g); g.connect(this.dry); g.connect(this.send); s.start(t); s.stop(t + dur);
     },
   };
 
