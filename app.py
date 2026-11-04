@@ -229,7 +229,7 @@ SKILL_CATS = [
     {"label": "Models & Cloud", "kanji": "雲", "skills": [
         ("Claude API", "claude"), ("Azure OpenAI", "azure"), ("AWS Bedrock", "bedrock"),
         ("Gemini", "gemini"), ("Groq", "groq"), ("Hugging Face", "huggingface"),
-        ("Whisper", "openai"), ("Ollama", "ollama"), ("Google Cloud", "gcp")]},
+        ("Whisper", "openai"), ("Ollama", "ollama")]},
     {"label": "RAG & Retrieval", "kanji": "蔵", "skills": [
         ("ChromaDB", "chroma"), ("pgvector", "postgresql"), ("DuckDB", "duckdb"),
         ("BigQuery", "bigquery"), ("LlamaIndex", "llamaindex"), ("Tavily", "tavily")]},
@@ -238,11 +238,10 @@ SKILL_CATS = [
         ("TensorFlow", "tensorflow"), ("Hugging Face", "huggingface")]},
     {"label": "Backend & Infra", "kanji": "鍛", "skills": [
         ("Python", "python"), ("FastAPI", "fastapi"), ("Docker", "docker"), ("GitHub Actions", "githubactions"),
-        ("Railway", "railway"), ("Vercel", "vercel"), ("Selenium", "selenium")]},
+        ("Railway", "railway"), ("Vercel", "vercel"), ("Google Cloud", "gcp"), ("Selenium", "selenium")]},
     {"label": "Frontend", "kanji": "画", "skills": [
         ("Plotly Dash", "plotly"), ("Streamlit", "streamlit"), ("Gradio", "gradio"), ("React", "react"),
-        ("Next.js", "nextjs"), ("TypeScript", "typescript"), ("Vite", "vite"), ("Tailwind", "tailwind"),
-        ("Three.js", "threejs")]},
+        ("Next.js", "nextjs"), ("TypeScript", "typescript"), ("Vite", "vite"), ("Tailwind", "tailwind")]},
 ]
 
 ALSO_FLUENT = ["Docling", "MinerU", "Pytesseract", "Librosa", "RAGAS", "DeepEval", "XGBoost",
@@ -251,7 +250,7 @@ ALSO_FLUENT = ["Docling", "MinerU", "Pytesseract", "Librosa", "RAGAS", "DeepEval
 EXPERIENCE = [
     {
         "role": "Data Scientist", "company": "GEDU Services", "company_url": "https://geduservices.com/",
-        "dates": "Jul 2026 · Present", "place": "Noida", "active": True,
+        "dates": "Jul 2026 – Present", "place": "Noida", "active": True,
         "desc": "Building production GenAI across a global education services group.",
         "bullets": [
             "Built and deployed an agentic RAG chatbot for Global Banking School: LangGraph pipeline, recursive crawling, PDF/table extraction and ChromaDB retrieval over 450+ pages",
@@ -264,7 +263,7 @@ EXPERIENCE = [
     },
     {
         "role": "AI Engineer (Associate)", "company": "Alvarez & Marsal", "company_url": "https://www.alvarezandmarsal.com",
-        "dates": "Jan 2025 · May 2026", "place": "Gurugram · GCC AI Team", "active": False,
+        "dates": "Jan 2025 – May 2026", "place": "Gurugram · GCC AI Team", "active": False,
         "desc": "Production GenAI for Private Equity and M&A advisory deal teams.",
         "bullets": [
             "Automated end-to-end CDD deck generation (Docling → Azure OpenAI extraction → python-pptx), cutting analyst prep time by 60% per engagement",
@@ -278,7 +277,7 @@ EXPERIENCE = [
     },
     {
         "role": "Data Scientist", "company": "Newgen Software", "company_url": "https://www.newgensoft.com",
-        "dates": "Oct 2022 · Dec 2024", "place": "Noida", "active": False,
+        "dates": "Oct 2022 – Dec 2024", "place": "Noida", "active": False,
         "desc": "Enterprise GenAI, recommendations and classical ML for e-commerce and BFSI clients.",
         "bullets": [
             "Built LumYn and Harper, enterprise GenAI apps with RAG and multi-agent LangChain workflows, reducing query time by 65%",
