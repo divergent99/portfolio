@@ -303,6 +303,11 @@ CASES = [
             ("ok", "streaming answer with 2 citations…"),
         ],
         "graph": "gbs",
+        "decisions": [
+            "Citation-first generation, so every answer can be checked against its source page",
+            "Self-check before streaming: ungrounded drafts go back for another retrieval pass",
+            "Domain-tuned embeddings, so course and fee terminology retrieves cleanly",
+        ],
         "stack": ["LangGraph", "ChromaDB", "FastAPI", "Claude API"],
     },
     {
@@ -323,6 +328,11 @@ CASES = [
             ("ok", "python-pptx → CDD_deck.pptx ready for review"),
         ],
         "graph": "cdd",
+        "decisions": [
+            "Parse with Docling first, so the LLM sees structured sections and tables, not raw PDF text",
+            "Extract to a structured fact sheet before rendering, one source of truth for every slide",
+            "Render native PPTX, so analysts edit slides instead of rebuilding them",
+        ],
         "stack": ["Docling", "Azure OpenAI", "python-pptx", "FastAPI"],
     },
     {
@@ -343,6 +353,11 @@ CASES = [
             ("ok", "DuckDB → DAX-aligned answer streaming…"),
         ],
         "graph": "rapid",
+        "decisions": [
+            "Reuse the Power BI / DAX metric definitions, so answers never disagree with the dashboards",
+            "Semantic cache in front of the LLM, so repeat questions skip generation entirely",
+            "Follow-up detection keeps context, so \"and last year?\" just works",
+        ],
         "stack": ["LangGraph", "DuckDB", "Azure OpenAI", "FastAPI"],
     },
 ]
@@ -461,6 +476,10 @@ def case_card(c, i):
                 html.Div([html.Div("Problem", className="case-k"), html.P(c["problem"])], className="case-block"),
                 html.Div([html.Div("Build", className="case-k"), html.P(c["build"])], className="case-block"),
             ], className="case-body"),
+            html.Div([
+                html.Div("Key decisions", className="case-k"),
+                html.Ul([html.Li(d) for d in c["decisions"]], className="case-decisions"),
+            ], className="case-block decisions-block"),
             html.Div([stack_tag(t) for t in c["stack"]], className="card-stack"),
         ], className="case-main"),
         html.Div(side, className="case-side"),

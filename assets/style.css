@@ -742,3 +742,11 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
 .js .tterm .tline { visibility: hidden; }
 .js .tterm .tline.typed, .js .tterm .tline.typing { visibility: visible; }
 .tline.typing::after { content: ''; display: inline-block; width: 6px; height: 1em; vertical-align: -2px; margin-left: 2px; background: var(--lantern); animation: blink 1s steps(1) infinite; }
+
+/* key decisions: fills the main column so both halves of the card end level */
+.case-main { display: flex; flex-direction: column; }
+.decisions-block { margin-bottom: 18px; }
+.case-decisions { list-style: none; display: grid; gap: 7px; }
+.case-decisions li { position: relative; padding-left: 18px; font-size: 13.5px; color: var(--paper-2); line-height: 1.5; }
+.case-decisions li::before { content: ''; position: absolute; left: 2px; top: .6em; width: 6px; height: 6px; transform: rotate(45deg); background: var(--crimson); }
+.case-main .card-stack { margin-top: auto; }
