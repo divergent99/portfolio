@@ -635,27 +635,47 @@
     });
   }
 
-  /* ── LinkedIn posts: lazy iframes + carousel arrows ────────────── */
+  /* ── LinkedIn posts: lazy iframes at full height, clipped + "Read more", carousel arrows ── */
   function posts() {
     const track = $('#posts-track'); if (!track) return;
     const frames = $$('.post-frame', track);
+    // LinkedIn's height is for a 504px-wide embed; narrower cards reflow taller, so scale up with some slack
+    const fullHeight = f => Math.round(+f.dataset.h * (1 + (Math.max(1, 504 / f.clientWidth) - 1) * 0.6) + 60);
     const load = f => {
       if (f.querySelector('iframe')) return;
       const i = document.createElement('iframe');
       i.src = f.dataset.src; i.title = 'LinkedIn post'; i.loading = 'lazy'; i.allowFullscreen = true;
+      i.setAttribute('scrolling', 'no');
+      i.style.height = `${fullHeight(f)}px`;
       i.addEventListener('load', () => f.classList.add('loaded'));
       f.appendChild(i);
     };
-    // load the visible ones when the section gets close, the rest as they scroll into the track
     const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { load(e.target); io.unobserve(e.target); } }),
-      { root: null, rootMargin: '400px 600px' });
+      { rootMargin: '400px 600px' });
     frames.forEach(f => io.observe(f));
+
+    $$('.post-card', track).forEach(card => {
+      const btn = $('.post-more', card), f = $('.post-frame', card);
+      btn.addEventListener('click', () => {
+        const open = !card.classList.contains('expanded');
+        card.classList.toggle('expanded', open);
+        load(f);
+        f.style.height = open ? `${(f.querySelector('iframe')?.offsetHeight) || fullHeight(f)}px` : '';
+        $('.rm-label', card).textContent = open ? 'Show less' : 'Read more';
+        if (!open) card.scrollIntoView({ block: 'nearest', behavior: reduceMotion ? 'auto' : 'smooth' });
+      });
+    });
+    window.addEventListener('resize', () => frames.forEach(f => {
+      const i = f.querySelector('iframe'); if (i) i.style.height = `${fullHeight(f)}px`;
+      if (f.closest('.post-card').classList.contains('expanded') && i) f.style.height = i.style.height;
+    }));
 
     const prev = $('#posts-prev'), next = $('#posts-next');
     const step = () => (track.querySelector('.post-card')?.getBoundingClientRect().width || 400) + 18;
     const sync = () => {
-      prev.disabled = track.scrollLeft < 8;
-      next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 8;
+      const end = track.scrollLeft + track.clientWidth >= track.scrollWidth - 8;
+      prev.disabled = track.scrollLeft < 8; next.disabled = end;
+      track.classList.toggle('at-end', end);
     };
     prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
     next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));

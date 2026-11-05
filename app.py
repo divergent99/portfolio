@@ -285,11 +285,11 @@ CODE = [
 ]
 
 # LinkedIn posts to embed, newest first (share URNs from LinkedIn's "Embed this post")
-POSTS = [
-    "7449118803113930753",
-    "7443719970334715904",
-    "7285357114158411777",
-    "7268924245546549248",
+POSTS = [  # (share id, height from LinkedIn's embed code)
+    ("7449118803113930753", 1412),
+    ("7443719970334715904", 1237),
+    ("7285357114158411777", 1078),
+    ("7268924245546549248", 984),
 ]
 
 CASES = [
@@ -724,12 +724,17 @@ app.layout = html.Div(id="ronin-root", children=[
                     html.Div([
                         html.Div(className="post-skel-line w40"), html.Div(className="post-skel-line w90"),
                         html.Div(className="post-skel-line w75"), html.Div(className="post-skel-block"),
-                    ], className="post-frame", **{"data-src": f"https://www.linkedin.com/embed/feed/update/urn:li:share:{pid}"}),
-                    html.A(["Open on LinkedIn ", html.I(className="fa-solid fa-arrow-up-right-from-square")],
-                           href=f"https://www.linkedin.com/feed/update/urn:li:share:{pid}/",
-                           target="_blank", rel="noopener", className="post-open"),
+                    ], className="post-frame", **{"data-src": f"https://www.linkedin.com/embed/feed/update/urn:li:share:{pid}",
+                                                  "data-h": str(h)}),
+                    html.Div([
+                        html.Button([html.Span("Read more", className="rm-label"), html.I(className="fa-solid fa-chevron-down")],
+                                    className="post-more"),
+                        html.A(["Open on LinkedIn ", html.I(className="fa-solid fa-arrow-up-right-from-square")],
+                               href=f"https://www.linkedin.com/feed/update/urn:li:share:{pid}/",
+                               target="_blank", rel="noopener", className="post-open"),
+                    ], className="post-foot"),
                 ], className="post-card reveal")
-                for pid in POSTS
+                for pid, h in POSTS
             ], className="posts-track", id="posts-track"),
         ], className="container"),
     ], id="posts", className="section"),
