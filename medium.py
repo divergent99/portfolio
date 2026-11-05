@@ -11,20 +11,70 @@ import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
 from html import escape, unescape
 
+import json
+import logging
+import os
+
 import requests
+
+log = logging.getLogger("medium")
 
 FEED_URLS = [
     "https://medium.com/feed/@abhineetsharma77",
     "https://abhineetsharma77.medium.com/feed",
 ]
 PROFILE = "https://abhineetsharma77.medium.com/"
+# Medium sits behind Cloudflare, which often blocks datacenter IPs (Railway). rss2json relays the same feed.
+RSS2JSON = "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fmedium.com%2Ffeed%2F%40abhineetsharma77"
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36",
+    "Accept": "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8, */*;q=0.5",
+    "Accept-Language": "en-US,en;q=0.9",
+}
 TTL = 6 * 3600          # refresh every 6 hours
 RETRY = 10 * 60         # after a failure, try again in 10 minutes
 LIMIT = 3
 NS = {"content": "http://purl.org/rss/1.0/modules/content/"}
 
-_cache = {"items": None, "at": 0.0, "next": 0.0}
+_cache = {"items": None, "at": 0.0, "next": 0.0, "source": None, "errors": []}
 _lock = threading.Lock()
+
+# Snapshot written daily by .github/workflows/medium.yml (GitHub's runners can reach Medium even when
+# Railway is blocked). Loaded at startup so the section is never empty; a live refresh may update it.
+SNAPSHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "medium.json")
+try:
+    with open(SNAPSHOT, encoding="utf-8") as _f:
+        _snap = json.load(_f)
+    if _snap.get("items"):
+        _cache.update(items=_snap["items"][:LIMIT], source=f"snapshot {_snap.get('fetched_at', '')}".strip())
+except (OSError, ValueError):
+    pass
+
+
+def _item(title, link, date, body, tags, thumb=None):
+    img = re.search(r'<img[^>]+src="([^"]+)"', body)
+    src = thumb or (img.group(1) if img else None)
+    if src and "stat?event" in src:
+        src = None
+    text = re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", body))).strip()
+    excerpt = text[:190].rsplit(" ", 1)[0] + "…" if len(text) > 190 else text
+    return {"title": (title or "").strip(), "link": (link or PROFILE).split("?")[0], "date": date, "img": src,
+            "excerpt": excerpt, "mins": max(1, round(len(text.split()) / 230)), "tags": [t for t in tags if t][:3]}
+
+
+def parse_rss2json(text):
+    data = json.loads(text)
+    if data.get("status") != "ok":
+        raise ValueError(data.get("message", "rss2json error"))
+    out = []
+    for it in data.get("items", []):
+        try:
+            date = time.strftime("%b %Y", time.strptime(it.get("pubDate", "")[:10], "%Y-%m-%d"))
+        except ValueError:
+            date = ""
+        out.append(_item(it.get("title"), it.get("link"), date, it.get("content") or it.get("description") or "",
+                         it.get("categories") or [], it.get("thumbnail") or None))
+    return [i for i in out if i["title"]][:LIMIT]
 
 
 def parse(xml_text):
@@ -54,26 +104,54 @@ def parse(xml_text):
 
 
 def _fetch():
+    errors = []
     for url in FEED_URLS:
         try:
-            r = requests.get(url, timeout=6, headers={"User-Agent": "portfolio-feed/1.0"})
+            r = requests.get(url, timeout=8, headers=HEADERS)
             if r.ok and "<rss" in r.text[:500]:
                 items = parse(r.text)
                 if items:
-                    return items
-        except (requests.RequestException, ET.ParseError):
-            continue
-    return None
+                    return items, url, errors
+                errors.append(f"{url}: feed had no items")
+            else:
+                errors.append(f"{url}: HTTP {r.status_code}, {r.text[:60]!r}")
+        except (requests.RequestException, ET.ParseError) as e:
+            errors.append(f"{url}: {type(e).__name__}: {e}"[:200])
+    try:
+        r = requests.get(RSS2JSON, timeout=10, headers={"User-Agent": HEADERS["User-Agent"]})
+        items = parse_rss2json(r.text)
+        if items:
+            return items, "rss2json", errors
+        errors.append("rss2json: no items")
+    except (requests.RequestException, ValueError) as e:
+        errors.append(f"rss2json: {type(e).__name__}: {e}"[:200])
+    return None, None, errors
 
 
 def _refresh():
-    items = _fetch()
+    items, source, errors = _fetch()
+    for e in errors:
+        log.warning("medium feed: %s", e)
     with _lock:
         now = time.time()
-        if items:
-            _cache.update(items=items, at=now, next=now + TTL)
+        _cache["errors"] = errors
+        if items:   # keep the snapshot when the live fetch fails
+            _cache.update(items=items, at=now, next=now + TTL, source=source)
         else:
             _cache["next"] = now + RETRY
+
+
+def status():
+    return {"articles": [a["title"] for a in (_cache["items"] or [])], "source": _cache["source"],
+            "fetched_at": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime(_cache["at"])) if _cache["at"] else None,
+            "next_refresh_in_s": max(0, int(_cache["next"] - time.time())), "last_errors": _cache["errors"]}
+
+
+def warm():
+    """Fetch once at startup so the first visitor gets articles, not the fallback."""
+    threading.Thread(target=_refresh, daemon=True).start()
+    with _lock:
+        _cache["next"] = time.time() + RETRY
 
 
 def articles():

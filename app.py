@@ -872,6 +872,7 @@ PERSON = {
 }
 from graphs import graph_html, GRAPHS
 import medium
+medium.warm()
 
 BODY = render(app.layout)
 for _key in GRAPHS:
@@ -931,6 +932,9 @@ def serve_static_page():
         resp = Response(page, mimetype="text/html")
         resp.headers["Cache-Control"] = "public, max-age=300"
         return resp
+    if request.path == "/status/medium":
+        return Response(json.dumps(medium.status(), indent=2), mimetype="application/json",
+                        headers={"Cache-Control": "no-store"})
     if request.path == "/robots.txt":
         return Response(f"User-agent: *\nAllow: /\nSitemap: {_origin()}/sitemap.xml\n", mimetype="text/plain")
     if request.path == "/sitemap.xml":
