@@ -840,3 +840,13 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
 .article-cta i { font-size: 11px; margin-left: 4px; }
 @media (max-width: 980px) { .articles-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 640px) { .articles-grid { grid-template-columns: 1fr; } }
+
+.cgpa { margin-bottom: 12px; }
+.cgpa-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.edu-k { font-family: var(--mono); font-size: 10.5px; letter-spacing: .2em; color: var(--muted); }
+.edu-score { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--lantern-soft); }
+.cgpa-track { height: 8px; border-radius: 6px; background: rgba(233,228,216,.06); overflow: hidden; }
+.cgpa-fill { height: 100%; width: 0; border-radius: 6px; background: linear-gradient(90deg, var(--crimson-deep), var(--lantern)); box-shadow: 0 0 12px rgba(246,165,74,.35); transition: width 1.4s var(--ease) .3s; }
+.edu-card.visible .cgpa-fill { width: var(--w); }
+.edu-honour { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--paper-2); margin-bottom: 14px; }
+.edu-honour i { color: var(--lantern); }

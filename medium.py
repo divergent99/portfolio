@@ -107,7 +107,7 @@ def _fetch():
     errors = []
     for url in FEED_URLS:
         try:
-            r = requests.get(url, timeout=8, headers=HEADERS)
+            r = requests.get(url, timeout=15, headers=HEADERS)
             if r.ok and "<rss" in r.text[:500]:
                 items = parse(r.text)
                 if items:

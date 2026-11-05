@@ -2,7 +2,7 @@ name: Refresh Medium articles
 
 on:
   schedule:
-    - cron: "17 3 * * *"   # daily, 08:47 IST
+    - cron: "17 3,15 * * *"   # twice a day, 08:47 and 20:47 IST
   workflow_dispatch:
 
 permissions:
@@ -20,11 +20,10 @@ jobs:
       - run: python scripts/fetch_medium.py
       - name: Commit snapshot if it changed
         run: |
-          if git diff --quiet --exit-code -- assets/medium.json 2>/dev/null && git ls-files --error-unmatch assets/medium.json >/dev/null 2>&1; then
-            echo "Nothing to commit"; exit 0
-          fi
+          [ -f assets/medium.json ] || { echo "No snapshot yet (feed unreachable)"; exit 0; }
+          git add assets/medium.json
+          git diff --cached --quiet && { echo "Nothing to commit"; exit 0; }
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/medium.json
           git commit -m "Refresh Medium articles snapshot"
           git push

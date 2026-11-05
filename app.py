@@ -702,9 +702,15 @@ app.layout = html.Div(id="ronin-root", children=[
             html.Div([
                 html.Div([
                     html.Div([html.I(className="fa-solid fa-graduation-cap"), html.Span("Degree", className="edu-kind")], className="edu-top"),
-                    html.H3("B.Tech", className="edu-title"),
+                    html.H3("B.Tech, Information Technology", className="edu-title"),
                     html.Div("Dr. A.P.J. Abdul Kalam Technical University", className="edu-org"),
-                    html.Div([html.Span("CGPA 8.81", className="edu-pill"), html.Span("2018 to 2022", className="edu-date")], className="edu-meta"),
+                    html.Div([
+                        html.Div([html.Span("CGPA", className="edu-k"), html.Span(["8.81", html.Span(" / 10", className="dim")], className="edu-score")],
+                                 className="cgpa-head"),
+                        html.Div(html.Div(className="cgpa-fill", style={"--w": "88.1%"}), className="cgpa-track"),
+                    ], className="cgpa"),
+                    html.Div([html.I(className="fa-solid fa-medal"), "First Division with Distinction"], className="edu-honour"),
+                    html.Div([html.Span("Distinction", className="edu-pill"), html.Span("2018 to 2022", className="edu-date")], className="edu-meta"),
                 ], className="edu-card reveal"),
                 html.Div([
                     html.Div([html.I(className="fa-solid fa-award"), html.Span("Fellowship", className="edu-kind"),
