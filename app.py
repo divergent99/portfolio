@@ -205,7 +205,7 @@ ICONS = {
     "streamlit": "#FF4B4B", "gradio": "#F97316", "react": "#61DAFB", "nextjs": "#E7E2D6",
     "vite": "#9135FF", "tailwind": "#06B6D4", "threejs": "#E7E2D6", "typescript": "#3178C6",
     "aws": "#FF9900", "tavily": "#8FB5FF", "github": "#E7E2D6", "linkedin": "#0A66C2",
-    "medium": "#E7E2D6", "gmail": "#EA4335",
+    "medium": "#E7E2D6", "gmail": "#EA4335", "hackerrank": "#00EA64",
 }
 
 SKILL_CATS = [
@@ -283,6 +283,9 @@ CODE = [
     ("道", "dō", "Production is the path",
      "Demos are cheap. FastAPI, Docker, CI/CD and real users are where the craft actually lives."),
 ]
+
+UNIVAI_MODULES = ["AI-1 · AI & ML basics", "AI-2 · CNNs", "AI-3 · Language models", "AI-4 · RL & GANs",
+                  "DS-1 · Data science", "DS-2 · Trees & ensembles"]
 
 # LinkedIn posts to embed, newest first (share URNs from LinkedIn's "Embed this post")
 POSTS = [  # (share id, height from LinkedIn's embed code)
@@ -697,17 +700,31 @@ app.layout = html.Div(id="ronin-root", children=[
                          f"{YEARS} years delivering AI in production, from BFSI to PE deal rooms to education."),
             html.Div([timeline_item(e) for e in EXPERIENCE], className="timeline"),
             html.Div([
-                html.I(className="fa-solid fa-graduation-cap"),
-                html.Span(["B.Tech, Dr. A.P.J. Abdul Kalam Technical University · ", html.B("CGPA 8.81"), " · 2018 to 2022"]),
-            ], className="edu reveal"),
+                html.Div([
+                    html.Div([html.I(className="fa-solid fa-graduation-cap"), html.Span("Degree", className="edu-kind")], className="edu-top"),
+                    html.H3("B.Tech", className="edu-title"),
+                    html.Div("Dr. A.P.J. Abdul Kalam Technical University", className="edu-org"),
+                    html.Div([html.Span("CGPA 8.81", className="edu-pill"), html.Span("2018 to 2022", className="edu-date")], className="edu-meta"),
+                ], className="edu-card reveal"),
+                html.Div([
+                    html.Div([html.I(className="fa-solid fa-award"), html.Span("Fellowship", className="edu-kind"),
+                              html.A(["Credentials ", html.I(className="fa-solid fa-arrow-up-right-from-square")],
+                                     href="https://www.linkedin.com/in/abhineet-sharma-/details/certifications/",
+                                     target="_blank", rel="noopener", className="edu-link")], className="edu-top"),
+                    html.H3("Master ML & AI", className="edu-title"),
+                    html.Div("Univ.AI · DSLP Fellowship", className="edu-org"),
+                    html.Div([html.Span(m, className="also-chip") for m in UNIVAI_MODULES], className="edu-modules"),
+                    html.Div([html.Span("6 modules", className="edu-pill"), html.Span("2021 to 2022", className="edu-date")], className="edu-meta"),
+                ], className="edu-card reveal"),
+            ], className="edu-grid"),
         ], className="container"),
     ], id="experience", className="section"),
 
     # ── LINKEDIN POSTS ─────────────────────────────────────────────
     html.Section([
         html.Div([
-            section_head("06", "書", "The Notes", "Latest on LinkedIn",
-                         "What I'm building and thinking about, straight from the feed."),
+            section_head("06", "書", "The Notes", "Latest writing",
+                         "Short posts on LinkedIn, long-form on Medium. What I'm building and what I learned."),
             html.Div([
                 html.Div([
                     html.Button(html.I(className="fa-solid fa-arrow-left"), className="icon-btn post-nav", id="posts-prev",
@@ -736,6 +753,12 @@ app.layout = html.Div(id="ronin-root", children=[
                 ], className="post-card reveal")
                 for pid, h in POSTS
             ], className="posts-track", id="posts-track"),
+            html.Div([
+                html.Div([brand_icon("medium", "bi"), html.Span("Long-form on Medium")], className="articles-label"),
+                html.A(["All articles ", html.I(className="fa-solid fa-arrow-right")], href="https://abhineetsharma77.medium.com/",
+                       target="_blank", rel="noopener", className="articles-all"),
+            ], className="articles-head reveal"),
+            html.Div(id="articles", className="articles-grid reveal"),
         ], className="container"),
     ], id="posts", className="section"),
 
@@ -750,6 +773,8 @@ app.layout = html.Div(id="ronin-root", children=[
                     contact_link("linkedin", "LinkedIn", "abhineet-sharma-", "https://linkedin.com/in/abhineet-sharma-/"),
                     contact_link("gmail", "Email", "abhineetsharma77@gmail.com", "mailto:abhineetsharma77@gmail.com"),
                     contact_link("medium", "Medium", "abhineetsharma77", "https://abhineetsharma77.medium.com/"),
+                    contact_link("hackerrank", "HackerRank", "5★ Python, SQL, C++ · Shadow_Walker007",
+                                 "https://www.hackerrank.com/profile/Shadow_Walker007"),
                 ], className="contact-links"),
                 html.Div([
                     html.Div(className="cta-lantern", children=[html.Div(className="cta-lantern-body"), html.Div(className="cta-lantern-light")]),
@@ -846,11 +871,14 @@ PERSON = {
     "knowsAbout": ["Generative AI", "LangGraph", "RAG", "Multi-agent systems", "Machine Learning", "FastAPI"],
 }
 from graphs import graph_html, GRAPHS
+import medium
 
 BODY = render(app.layout)
 for _key in GRAPHS:
     BODY = BODY.replace(f'<div class="case-graph" data-graph="{_key}"></div>',
                         f'<div class="case-graph" data-graph="{_key}">{graph_html(_key)}</div>')
+BODY, _n = re.subn(r'(<div[^>]*id="articles"[^>]*>)</div>', r'\1{articles}</div>', BODY)
+assert _n == 1, "articles placeholder not found"
 FA = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 TEMPLATE = f"""<!DOCTYPE html>
 <html lang="en">
@@ -899,7 +927,8 @@ def _origin():
 @server.before_request
 def serve_static_page():
     if request.path in ("/", "/index.html"):
-        resp = Response(TEMPLATE.replace("{origin}", _origin()), mimetype="text/html")
+        page = TEMPLATE.replace("{origin}", _origin()).replace("{articles}", medium.render(medium.articles()))
+        resp = Response(page, mimetype="text/html")
         resp.headers["Cache-Control"] = "public, max-age=300"
         return resp
     if request.path == "/robots.txt":
