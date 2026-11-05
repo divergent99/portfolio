@@ -750,3 +750,38 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
 .case-decisions li { position: relative; padding-left: 18px; font-size: 13.5px; color: var(--paper-2); line-height: 1.5; }
 .case-decisions li::before { content: ''; position: absolute; left: 2px; top: .6em; width: 6px; height: 6px; transform: rotate(45deg); background: var(--crimson); }
 .case-main .card-stack { margin-top: auto; }
+
+/* ── LINKEDIN POSTS ─────────────────────────────────────────────── */
+.posts-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.posts-controls { display: flex; gap: 8px; }
+.post-nav:disabled { opacity: .35; cursor: default; }
+.posts-follow { padding: 9px 16px; font-size: 13px; }
+.posts-track {
+  display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth;
+  padding: 4px 2px 14px; scrollbar-width: thin; scrollbar-color: var(--crimson) transparent; overscroll-behavior-x: contain;
+}
+.posts-track::-webkit-scrollbar { height: 4px; }
+.posts-track::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 2px; }
+.post-card {
+  flex: 0 0 min(440px, 86vw); scroll-snap-align: start; display: flex; flex-direction: column;
+  border-radius: var(--radius); border: 1px solid var(--line); overflow: hidden;
+  background: linear-gradient(180deg, rgba(22,32,47,.8), rgba(11,18,32,.85)); transition: border-color .3s;
+}
+.post-card:hover { border-color: rgba(10,102,194,.45); }
+.post-frame { position: relative; height: 640px; background: #fff; overflow: hidden; }
+.post-frame iframe { display: block; width: 100%; height: 100%; border: 0; opacity: 0; transition: opacity .5s ease; }
+.post-frame.loaded iframe { opacity: 1; }
+.post-frame:not(.loaded) { background: #0f1726; padding: 22px; }
+.post-skel-line, .post-skel-block { border-radius: 6px; margin-bottom: 12px; background: linear-gradient(90deg, rgba(233,228,216,.05), rgba(233,228,216,.11), rgba(233,228,216,.05)); background-size: 200% 100%; animation: skel 1.4s ease-in-out infinite; }
+.post-skel-line { height: 12px; } .post-skel-line.w40 { width: 40%; } .post-skel-line.w90 { width: 90%; } .post-skel-line.w75 { width: 75%; }
+.post-skel-block { height: 260px; margin-top: 18px; }
+.post-frame.loaded .post-skel-line, .post-frame.loaded .post-skel-block { display: none; }
+@keyframes skel { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.post-open { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; font-size: 12.5px; font-weight: 600; color: var(--paper-2); border-top: 1px solid var(--line); transition: color .2s; }
+.post-open:hover { color: #fff; }
+.post-open i { font-size: 11px; color: #5aa0e6; }
+@media (max-width: 760px) {
+  .post-frame { height: 560px; }
+  .posts-controls { display: none; }
+  .posts-track { margin: 0 calc(-1 * clamp(18px, 4vw, 32px)); padding-left: clamp(18px, 4vw, 32px); padding-right: clamp(18px, 4vw, 32px); scroll-padding-left: clamp(18px, 4vw, 32px); }
+}

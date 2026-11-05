@@ -284,6 +284,14 @@ CODE = [
      "Demos are cheap. FastAPI, Docker, CI/CD and real users are where the craft actually lives."),
 ]
 
+# LinkedIn posts to embed, newest first (share URNs from LinkedIn's "Embed this post")
+POSTS = [
+    "7449118803113930753",
+    "7443719970334715904",
+    "7285357114158411777",
+    "7268924245546549248",
+]
+
 CASES = [
     {
         "org": "GEDU Services · Global Banking School", "year": "2026", "status": "In production",
@@ -540,7 +548,7 @@ def contact_link(icon_key, label, sub, href, extra=None):
 # LAYOUT
 # ══════════════════════════════════════════════════════════════════
 
-NAV = [("way", "Way"), ("cases", "Cases"), ("projects", "Work"), ("skills", "Arsenal"), ("experience", "Path"), ("contact", "Contact")]
+NAV = [("way", "Way"), ("cases", "Cases"), ("projects", "Work"), ("skills", "Arsenal"), ("experience", "Path"), ("posts", "Notes"), ("contact", "Contact")]
 
 app.layout = html.Div(id="ronin-root", children=[
 
@@ -695,10 +703,41 @@ app.layout = html.Div(id="ronin-root", children=[
         ], className="container"),
     ], id="experience", className="section"),
 
+    # ── LINKEDIN POSTS ─────────────────────────────────────────────
+    html.Section([
+        html.Div([
+            section_head("06", "書", "The Notes", "Latest on LinkedIn",
+                         "What I'm building and thinking about, straight from the feed."),
+            html.Div([
+                html.Div([
+                    html.Button(html.I(className="fa-solid fa-arrow-left"), className="icon-btn post-nav", id="posts-prev",
+                                **{"aria-label": "Previous post"}),
+                    html.Button(html.I(className="fa-solid fa-arrow-right"), className="icon-btn post-nav", id="posts-next",
+                                **{"aria-label": "Next post"}),
+                ], className="posts-controls"),
+                html.A([brand_icon("linkedin", "bi bi-sm"), " Follow on LinkedIn"],
+                       href="https://www.linkedin.com/in/abhineet-sharma-/recent-activity/all/",
+                       target="_blank", rel="noopener", className="btn-ghost posts-follow"),
+            ], className="posts-bar reveal"),
+            html.Div([
+                html.Div([
+                    html.Div([
+                        html.Div(className="post-skel-line w40"), html.Div(className="post-skel-line w90"),
+                        html.Div(className="post-skel-line w75"), html.Div(className="post-skel-block"),
+                    ], className="post-frame", **{"data-src": f"https://www.linkedin.com/embed/feed/update/urn:li:share:{pid}"}),
+                    html.A(["Open on LinkedIn ", html.I(className="fa-solid fa-arrow-up-right-from-square")],
+                           href=f"https://www.linkedin.com/feed/update/urn:li:share:{pid}/",
+                           target="_blank", rel="noopener", className="post-open"),
+                ], className="post-card reveal")
+                for pid in POSTS
+            ], className="posts-track", id="posts-track"),
+        ], className="container"),
+    ], id="posts", className="section"),
+
     # ── CONTACT ────────────────────────────────────────────────────
     html.Section([
         html.Div([
-            section_head("06", "灯", "Light the lantern", "Let's build something",
+            section_head("07", "灯", "Light the lantern", "Let's build something",
                          "Open to freelance projects, consulting and collaborations."),
             html.Div([
                 html.Div([

@@ -635,6 +635,33 @@
     });
   }
 
+  /* ── LinkedIn posts: lazy iframes + carousel arrows ────────────── */
+  function posts() {
+    const track = $('#posts-track'); if (!track) return;
+    const frames = $$('.post-frame', track);
+    const load = f => {
+      if (f.querySelector('iframe')) return;
+      const i = document.createElement('iframe');
+      i.src = f.dataset.src; i.title = 'LinkedIn post'; i.loading = 'lazy'; i.allowFullscreen = true;
+      i.addEventListener('load', () => f.classList.add('loaded'));
+      f.appendChild(i);
+    };
+    // load the visible ones when the section gets close, the rest as they scroll into the track
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { load(e.target); io.unobserve(e.target); } }),
+      { root: null, rootMargin: '400px 600px' });
+    frames.forEach(f => io.observe(f));
+
+    const prev = $('#posts-prev'), next = $('#posts-next');
+    const step = () => (track.querySelector('.post-card')?.getBoundingClientRect().width || 400) + 18;
+    const sync = () => {
+      prev.disabled = track.scrollLeft < 8;
+      next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 8;
+    };
+    prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
+    next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
+    track.addEventListener('scroll', sync, { passive: true }); window.addEventListener('resize', sync); sync();
+  }
+
   /* ── Keys + easter egg ─────────────────────────────────────────── */
   function keys() {
     let buf = '';
@@ -658,7 +685,7 @@
   function boot() {
     if (booted || !$('#hero-img') || !$('.site-footer')) return false;
     booted = true;
-    Rain.init(); Hero.init(); typewriter(); reveal(); nav(); projects(); cursor(); ripples(); copyEmail(); archGraphs(); terminals(); keys();
+    Rain.init(); Hero.init(); typewriter(); reveal(); nav(); projects(); cursor(); ripples(); copyEmail(); archGraphs(); terminals(); posts(); keys();
     console.log('%c浪人 %cYou opened the console. Respect.\nType "bushido" on the page for weather.',
       'color:#d4402f;font:800 20px serif', 'color:#e9e4d8;font:12px monospace');
     return true;
