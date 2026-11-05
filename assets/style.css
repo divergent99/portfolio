@@ -768,11 +768,11 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
   background: #fff; transition: border-color .3s;
 }
 .post-card:hover { border-color: rgba(10,102,194,.5); }
-.post-frame { position: relative; height: 600px; overflow: hidden; background: #fff; transition: height .5s var(--ease); }
+.post-frame { position: relative; height: 420px; overflow: hidden; background: #fff; transition: height .5s var(--ease); }
 .post-frame iframe { display: block; width: 100%; border: 0; opacity: 0; transition: opacity .5s ease; pointer-events: auto; }
 .post-frame.loaded iframe { opacity: 1; }
 .post-frame::after {   /* fade into the footer while collapsed */
-  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 120px; pointer-events: none;
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 90px; pointer-events: none;
   background: linear-gradient(rgba(255,255,255,0), #fff 85%); transition: opacity .3s;
 }
 .post-card.expanded .post-frame::after { opacity: 0; }
@@ -780,7 +780,7 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
 .post-frame:not(.loaded)::after { display: none; }
 .post-skel-line, .post-skel-block { border-radius: 6px; margin-bottom: 12px; background: linear-gradient(90deg, rgba(233,228,216,.05), rgba(233,228,216,.11), rgba(233,228,216,.05)); background-size: 200% 100%; animation: skel 1.4s ease-in-out infinite; }
 .post-skel-line { height: 12px; } .post-skel-line.w40 { width: 40%; } .post-skel-line.w90 { width: 90%; } .post-skel-line.w75 { width: 75%; }
-.post-skel-block { height: 260px; margin-top: 18px; }
+.post-skel-block { height: 180px; margin-top: 18px; }
 .post-frame.loaded .post-skel-line, .post-frame.loaded .post-skel-block { display: none; }
 @keyframes skel { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 .post-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; background: #0f1726; border-top: 1px solid var(--line); }
@@ -793,7 +793,7 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
 @media (max-width: 1100px) { .post-card { flex-basis: calc((100% - 18px) / 2); } }
 @media (max-width: 760px) {
   .post-card { flex-basis: 86%; }
-  .post-frame { height: 520px; }
+  .post-frame { height: 400px; }
   .posts-controls { display: none; }
   .posts-track { margin: 0 calc(-1 * clamp(18px, 4vw, 32px)); padding-left: clamp(18px, 4vw, 32px); padding-right: clamp(18px, 4vw, 32px); scroll-padding-left: clamp(18px, 4vw, 32px); }
 }
