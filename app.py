@@ -263,7 +263,7 @@ EXPERIENCE = [
     },
     {
         "role": "Data Scientist", "company": "Newgen Software", "company_url": "https://www.newgensoft.com",
-        "dates": "Oct 2022 – Dec 2024", "place": "Noida", "active": False,
+        "dates": "Oct 2022 – Dec 2024", "place": "Gurugram", "active": False,
         "desc": "Enterprise GenAI, recommendations and classical ML for e-commerce and BFSI clients.",
         "bullets": [
             "Built LumYn and Harper, enterprise GenAI apps with RAG and multi-agent LangChain workflows, reducing query time by 65%",
