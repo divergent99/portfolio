@@ -614,17 +614,25 @@
   function terminals() {
     $$('.tterm').forEach(term => {
       const lines = $$('.tline', term);
-      if (reduceMotion) { lines.forEach(l => l.classList.add('typed')); return; }
+      // Each line keeps an invisible full-length copy ("ghost") in the layout, and the typed text sits on top of it.
+      // The terminal's height is therefore fixed from the first frame, so typing never pushes the page around.
+      lines.forEach(l => {
+        const ghost = document.createElement('span'), out = document.createElement('span');
+        ghost.className = 'tl-ghost'; ghost.textContent = l.dataset.text;
+        out.className = 'tl-out';
+        l.textContent = ''; l.append(ghost, out); l._out = out;
+      });
+      if (reduceMotion) { lines.forEach(l => { l._out.textContent = l.dataset.text; l.classList.add('typed'); }); return; }
       let running = false;
       const run = async () => {
         if (running) return; running = true;
         const wait = ms => new Promise(r => setTimeout(r, ms));
         while (true) {
-          lines.forEach(l => { l.classList.remove('typed', 'typing'); l.textContent = ''; });
+          lines.forEach(l => { l.classList.remove('typed', 'typing'); l._out.textContent = ''; });
           for (const l of lines) {
             const text = l.dataset.text, isSql = l.classList.contains('t-sql');
             l.classList.add('typing');
-            for (let i = 1; i <= text.length; i++) { l.textContent = text.slice(0, i); await wait(isSql ? 14 : 28); }
+            for (let i = 1; i <= text.length; i++) { l._out.textContent = text.slice(0, i); await wait(isSql ? 14 : 28); }
             l.classList.remove('typing'); l.classList.add('typed');
             await wait(l.classList.contains('t-q') ? 500 : 220);
           }

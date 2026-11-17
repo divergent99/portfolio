@@ -733,15 +733,18 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
 .tdot { width: 8px; height: 8px; border-radius: 50%; background: #3a4458; }
 .tdot:first-child { background: var(--crimson); }
 .tterm-title { margin-left: 8px; color: var(--dim); font-size: 10.5px; }
-.tterm-body { padding: 10px 12px; min-height: 128px; }
-.tline { white-space: pre-wrap; word-break: break-word; line-height: 1.6; }
-.tline.t-q { color: var(--paper); } .tline.t-q::before { content: '> '; color: var(--crimson); }
-.tline.t-info { color: var(--muted); } .tline.t-info::before { content: '# '; }
+.tterm-body { padding: 10px 12px; }
+.tline { position: relative; white-space: pre-wrap; word-break: break-word; line-height: 1.6; }
+.tl-ghost { visibility: hidden; }
+.tl-out { position: absolute; left: 0; top: 0; right: 0; }
+.tline.t-sql .tl-out { left: 12px; }
+.tline.t-q .tl-out, .tline.t-info .tl-out { left: 2ch; }
+.tline.t-q { color: var(--paper); padding-left: 2ch; } .tline.t-q::before { content: '>'; position: absolute; left: 0; color: var(--crimson); }
+.tline.t-info { color: var(--muted); padding-left: 2ch; } .tline.t-info::before { content: '#'; position: absolute; left: 0; }
 .tline.t-sql { color: var(--rain); padding-left: 12px; }
 .tline.t-ok { color: #b9d39c; }
-.js .tterm .tline { visibility: hidden; }
-.js .tterm .tline.typed, .js .tterm .tline.typing { visibility: visible; }
-.tline.typing::after { content: ''; display: inline-block; width: 6px; height: 1em; vertical-align: -2px; margin-left: 2px; background: var(--lantern); animation: blink 1s steps(1) infinite; }
+/* lines always occupy their space; only the typed overlay is shown */
+.tline.typing .tl-out::after { content: ''; display: inline-block; width: 6px; height: 1em; vertical-align: -2px; margin-left: 2px; background: var(--lantern); animation: blink 1s steps(1) infinite; }
 
 /* key decisions: fills the main column so both halves of the card end level */
 .case-main { display: flex; flex-direction: column; }
@@ -850,3 +853,7 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radi
 .edu-card.visible .cgpa-fill { width: var(--w); }
 .edu-honour { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--paper-2); margin-bottom: 14px; }
 .edu-honour i { color: var(--lantern); }
+
+/* typewriter: fixed single line so swapping phrases never changes the hero's height */
+.hero-role { height: 1.7em; min-height: 0; white-space: nowrap; overflow: hidden; }
+.tline:not(.typing):not(.typed)::before { visibility: hidden; }
