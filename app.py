@@ -422,6 +422,27 @@ def section_head(num, kanji, label, title, sub):
     ], className="section-head reveal")
 
 
+def deploy_host(p):
+    """Hosting platform, read from the live URL (or an explicit "host" key)."""
+    if p.get("host"):
+        return p["host"]
+    url = p.get("live") or ""
+    if "railway.app" in url:
+        return "Railway"
+    if "vercel.app" in url:
+        return "Vercel"
+    return None
+
+
+def with_host(p):
+    """Project stack with its hosting platform appended (once)."""
+    host = deploy_host(p)
+    stack = list(p["stack"])
+    if host and not any(host.lower() in s.lower() for s in stack):
+        stack.append(host)
+    return stack
+
+
 def project_card(p, i):
     status_cls = {"Deployed": "live", "Submitted": "sub", "Built": "built"}[p["status"]]
     links = []
@@ -446,7 +467,7 @@ def project_card(p, i):
         html.P(p["tagline"], className="card-tagline"),
         html.P(p["description"], className="card-desc"),
         html.Ul([html.Li(h) for h in p["highlights"]], className="card-highlights"),
-        html.Div([stack_tag(s) for s in p["stack"]], className="card-stack"),
+        html.Div([stack_tag(s) for s in with_host(p)], className="card-stack"),
         html.Div(links, className="card-links"),
     ], className="project-card reveal", **{
         "data-tags": p["tags"], "data-live": "1" if p["live"] else "0", "data-index": str(i),
